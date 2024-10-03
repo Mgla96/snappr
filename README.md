@@ -14,6 +14,9 @@
   </p>
 </div>
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Mgla96/snappr)](https://goreportcard.com/report/github.com/Mgla96/snappr)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mgla96/snappr?sort=semver)
+
 ----
 
 SnapPR is a tool for snappy PR creation and review, helping developers save time and catch bugs earlier.
