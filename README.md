@@ -128,75 +128,82 @@ You can use the `-p` or `--printOnly` flag to print the output to STDOUT only in
 > You will also need to change some of these arguments to match your specific github repository.
 
 ```bash
-snappr review --prNumber 3 --commitSHA 637ca803061762711dc7064378ed69e96b4fca5e -p --repository snappr --repositoryOwner Mgla96 --workflowName codeReview
-2024-09-08T14:03:31-07:00 INF {
-  "/cmd/add.go": [
-    {
-      "CommentBody": "Consider validating inputs in 'Run' functions to ensure robustness.",
-      "StartLine": 14,
-      "Line": 14
-    },
-    {
-      "CommentBody": "This change aligns with the project's new configuration management handling. Ensure corresponding documentation reflects these adjustments.",
-      "StartLine": 22,
-      "Line": 22
-    },
-    {
-      "CommentBody": "Use structured logging instead of 'fmt.Println' for better production traceability.",
-      "StartLine": 15,
-      "Line": 15
-    }
-  ],
-  "/cmd/root.go": [
-    {
-      "CommentBody": "Ensure that 'config' module properly abstracts configuration handling and isn't tightly coupled with other application components.",
-      "StartLine": 8,
-      "Line": 8
-    },
-    {
-      "CommentBody": "This change correctly addresses previous misuse of import. Verify that all relevant tests are updated to reflect this change in module dependency.",
-      "StartLine": 12,
-      "Line": 12
-    }
-  ],
-  "/internal/adapters/clients/github.go": [
-    {
-      "CommentBody": "Ensure new method adheres to the interface commitments and error handling conventions used throughout the application.",
-      "StartLine": 38,
-      "Line": 38
-    },
-    {
-      "CommentBody": "Adding method comments is a good practice. Make sure the comments are comprehensive and cover all aspects of the function behavior.",
-      "StartLine": 119,
-      "Line": 121
-    },
-    {
-      "CommentBody": "Verify that 'CodeFilter' and 'GetCommitCode' methods do not introduce any security implications or data handling issues.",
-      "StartLine": 253,
-      "Line": 256
-    }
-  ],
-  "/internal/app/app.go": [
-    {
-      "CommentBody": "Removing 'InputConfig' and relying on the separate configuration approach aligns with best practices of separation of concerns.",
-      "StartLine": 15,
-      "Line": 15
-    }
-  ],
-  "/internal/app/workflow.go": [
-    {
-      "CommentBody": "Good encapsulation practice by abstracting workflow logic into the 'config' module. Ensure comprehensive tests cover these changes to prevent regression.",
-      "StartLine": 1,
-      "Line": 1
-    }
-  ],
-  "/internal/config/input.go": [
-    {
-      "CommentBody": "This file initializes new configuration structures well. Next steps include implementing validation and proper integration points.",
-      "StartLine": 3,
-      "Line": 31
-    }
-  ]
+snappr review --prNumber 1 --commitSHA 73151df1fdfe7a46c4aa57aaf25fcd698783442e -p --repository snappr --repositoryOwner Mgla96 --workflowName codeReview
+{
+    "/cmd/review.go": [
+        {
+            "CommentBody": "Consider using context passed from caller instead of `context.TODO()` for better control over context and its cancellation from caller functions.",
+            "StartLine": 27,
+            "Line": 27
+        },
+        {
+            "CommentBody": "The command description declared as `Long:  'Create a new pull request'` might benefit from a more descriptive or detailed string explaining more about the command's functionality and its impact.",
+            "StartLine": 17,
+            "Line": 19
+        },
+        {
+            "CommentBody": "Error strings should not be capitalized or end with punctuation as per Go conventions. Modify error message accordingly in `fmt.Errorf(\"error no github token: %w\", err)`.",
+            "StartLine": 21,
+            "Line": 23
+        },
+        {
+            "CommentBody": "Logging fatal error directly in the app command setup could be harsh for an API consumer of this command. Consider returning an error and letting the caller handle it, potentially still exiting but with more control.",
+            "StartLine": 38,
+            "Line": 38
+        },
+        {
+            "CommentBody": "Variable `repositoryOwner` is required but not used in the direct function body nor passed to any other interfaces, check if it needs to be part of this scope.",
+            "StartLine": 11,
+            "Line": 35
+        },
+        {
+            "CommentBody": "It's good to provide context for regex but consider adding more examples or edge cases that this regex would fit to or reject, in variable `fileRegexPattern`, for a clearer understanding.",
+            "StartLine": 58,
+            "Line": 58
+        },
+        {
+            "CommentBody": "Instead of directly calling os.Getenv(\"GH_TOKEN\") inside the function, consider passing it as a configuration or parameter, which helps in testing and managing configurations more effectively.",
+            "StartLine": 34,
+            "Line": 34
+        },
+        {
+            "CommentBody": "Use explicit struct initialization to improve readability and avoid future bugs related to added fields in the `config.Config{...}` struct.",
+            "StartLine": 30,
+            "Line": 35
+        },
+        {
+            "CommentBody": "Ensure functional options or configurations are validated or defaulted properly before use, particularly for the logger setup in the init function.",
+            "StartLine": 66,
+            "Line": 66
+        }
+    ],
+    "/cmd/create.go": [
+        {
+            "CommentBody": "Ensure to handle possible empty strings or unexpected inputs for flags like 'repository', which could lead to runtime issues if unchecked.",
+            "StartLine": 59,
+            "Line": 59
+        },
+        {
+            "CommentBody": "Review the necessity of using `context.TODO()` here; if the context is supposed to be cancellable or have a timeout, use the proper context.",
+            "StartLine": 17,
+            "Line": 17
+        },
+        {
+            "CommentBody": "Check the consistency and necessity of `llmRetries`. If the retry logic can be encapsulated elsewhere or made more configurable, it could improve the command's robustness.",
+            "StartLine": 11,
+            "Line": 11
+        },
+        {
+            "CommentBody": "The string description for `workflowName` seems redundant if it's marked as 'required'. Consider relocating detailed descriptions or utility explanations to a documentation section rather than inline.",
+            "StartLine": 61,
+            "Line": 61
+        },
+        {
+            "CommentBody": "Follow up on the handling of environment variables: os.Getenv could return an empty string if not set, ensure there's a fallback or error handling mechanism.",
+            "StartLine": 34,
+            "Line": 34
+        }
+    ]
 }
 ```
 
@@ -211,21 +218,23 @@ You can use the `-p` or `--printOnly` flag to print the output to STDOUT only in
 > You will also need to change some of these arguments to match your specific github repository.
 
 ```bash
-snappr create --branch super-cool-pr --commitSHA 6700d0448ade1695d1f38b432f8c72cc1c7bb54b -p --repository snappr --repositoryOwner Mgla96 --workflowName createPR
-{"level":"info","time":"2024-09-14T00:15:43-07:00","message":"create called"}
-2024-09-14T00:16:05-07:00 INF {
-  "title": "Refactor Go Code for Better Practices and Performance",
-  "body": "This pull request includes code refactoring for better performance, readability, and adherence to best practices in the provided Go modules. Changes target missing implementations, best practices in error handling, and improved structuring.",
+snappr create --branch super-cool-pr --commitSHA a29e1c417e2e54076d5e88ba2e935989fb93fe1e --repository snappr --repositoryOwner Mgla96 --workflowName createPR
+2024-10-02T22:18:26-07:00 INF Created pull request: https://github.com/Mgla96/snappr/pull/1
+
+snappr create --branch super-cool-pr --commitSHA a29e1c417e2e54076d5e88ba2e935989fb93fe1e -p --repository snappr --repositoryOwner Mgla96 --workflowName createPR
+2024-10-02T22:16:06-07:00 INF {
+  "title": "Refactor Go Code for Better Performance and Readability",
+  "body": "This pull request includes updates to enhance performance, readability, and adherence to best practices for several Go files in our codebase.",
   "updated_files": [
     {
-      "path": "cmd/validate.go",
-      "full_content": "package cmd\n\nimport (\n\t\"fmt\"\n\n\t\"github.com/spf13/cobra\"\n)\n\nvar validateCmd = &cobra.Command{\n\tUse:   \"validate\",\n\tShort: \"Validate all configured workflows and knowledge sources\",\n\tRun: func(cmd *cobra.Command, args []string) {\n\t\tvalidateWorkflows()\n\t\tvalidateKnowledgeSources()\n\t},\n}\n\nfunc validateWorkflows() {\n\tif inputConfig.PromptWorkflows == nil {\n\t\tfmt.Println(\"No workflows configured\")\n\t\treturn\n\t}\n\tfmt.Println(\"Validation not yet implemented\")\n\n}\n\nfunc validateKnowledgeSources() {\n\tif len(inputConfig.KnowledgeSources) == 0 {\n\t\tfmt.Println(\"No knowledge sources configured\")\n\t\treturn\n\t}\n\tfmt.Println(\"Validation not yet implemented\")\n}\n",
-      "commit_message": "Implement proper checks in validation commands and refactor for readability."
+      "path": "cmd/create.go",
+      "full_content": "package cmd\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"os\"\n\n\t\"github.com/Mgla96/snappr/internal/app\"\n\t\"github.com/Mgla96/snappr/internal/config\"\n\t\"github.com/rs/zerolog\"\n\t\"github.com/spf13/cobra\"\n)\n\n// Variables to store command line flags\nvar (\n\tbranch, fileRegexPattern, repository, repositoryOwner, commitSHA, workflowName, llmEndpoint string\n\tllmRetries int\n\tprintOnly bool\n)\n\n// createCmd represents the create command\nvar createCmd = \u0026cobra.Command{\n\tUse:   \"create\",\n\tShort: \"Create a new pull request\",\n\tLong:  `Create a new pull request`,\n\tPreRunE: func(cmd *cobra.Command, args []string) error {\n\t\terr := app.CheckGHToken()\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"error no github token: %w\", err)\n\t\t}\n\t\terr = app.CheckLLMToken()\n\t\tif err != nil {\n\t\t\treturn fmt.Errorf(\"error no llm token: %w\", err)\n\t\t}\n\t\treturn nil\n\t},\n\tRun: func(cmd *cobra.Command, args []string) {\n\t\tlogger := zerolog.New(os.Stderr).With().Timestamp().Logger()\n\t\tconfig := \u0026config.Config{\n\t\t\tLog: config.Log{Level: zerolog.InfoLevel},\n\t\t\tGithub: config.Github{Token: os.Getenv(\"GH_TOKEN\"), Owner: repositoryOwner, Repo: repository},\n\t\t\tLLM: config.LLM{Token: os.Getenv(\"LLM_TOKEN\"), DefaultModel: \"gpt-4-turbo\", Endpoint: llmEndpoint},\n\t\t}\n\t\tapplication := app.SetupNoEnv(config)\n\t\terr := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, fileRegexPattern, printOnly)\n\t\tif err != nil {\n\t\t\tlogger.Fatal().Err(err).Msg(\"Error executing Create PR\")\n\t\t}\n\t},\n}\n\nfunc init() {\n\trootCmd.AddCommand(createCmd)\n\tflagSet := createCmd.Flags()\n\tflagSet.StringVar(\u0026repository, \"repository\", \"\", \"Github repository to review such as snappr (required)\")\n\tflagSet.StringVar(\u0026repositoryOwner, \"repositoryOwner\", \"\", \"The account owner of the repository. The name is not case sensitive. (required)\")\n\tflagSet.StringVar(\u0026commitSHA, \"commitSHA\", \"\", \"Commit SHA to create PR from (required)\")\n\tflagSet.StringVar(\u0026branch, \"branch\", \"\", \"Branch name to create PR from (required)\")\n\tflagSet.StringVar(\u0026workflowName, \"workflowName\", \"\", \"Prompt workflow to use (required)\")\n\tflagSet.StringVar(\u0026fileRegexPattern, \"fileRegexPattern\", `.*\\.go$`, \"Define a regex pattern to filter files to use as context for PR creation\")\n\tflagSet.StringVar(\u0026llmEndpoint, \"llmEndpoint\", \"\", \"Endpoint for the LLM service (defaults to OpenAI)\")\n\tflagSet.BoolVarP(\u0026printOnly, \"printOnly\", \"p\", false, \"Print the created PR only\")\n\tflagSet.IntVarP(\u0026llmRetries, \"llmRetries\", \"r\", 3, \"Number of retries for LLM API calls when failing to get a valid response\")\n\tmandatoryFlags := []string{\"repository\", \"repositoryOwner\", \"commitSHA\", \"branch\", \"workflowName\"}\n\tfor _, flag := range mandatoryFlags {\n\t\terr := createCmd.MarkFlagRequired(flag)\n\t\tif err != nil {\n\t\t\tlogger.Fatal().Err(err).Msg(\"Error marking \" + flag + \" as required\")\n\t\t}\n\t}\n}",
+      "commit_message": "Refactor create.go: Improve flag definition and initialization readability"
     },
     {
-      "path": "internal/app/knowledge.go",
-      "full_content": "package app\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\ntype KnowledgeSourceType string\n\nconst (\n\tKnowledgeSourceTypeFile KnowledgeSourceType = \"file\"\n\tKnowledgeSourceTypeURL  KnowledgeSourceType = \"url\"\n\tKnowledgeSourceTypeAPI  KnowledgeSourceType = \"api\"\n\tKnowledgeSourceTypeText KnowledgeSourceType = \"text\"\n)\n\ntype KnowledgeSource struct {\n\tName  string              `mapstructure:\"name\"`\n\tType  KnowledgeSourceType `mapstructure:\"type\"`\n\tValue string              `mapstructure:\"value\"`\n}\n\nvar knowledgeSources []KnowledgeSource\n\nfunc GetAllKnowledgeSources() []KnowledgeSource {\n\treturn knowledgeSources\n}\n\nfunc RetrieveKnowledge(sourceName string) string {\n\tfor _, source := range knowledgeSources {\n\t\tif source.Name == sourceName {\n\t\t\tswitch source.Type {\n\t\t\tcase KnowledgeSourceTypeFile:\n\t\t\t\tdata, err := os.ReadFile(source.Value)\n\t\t\t\tif err != nil {\n\t\t\t\t\tfmt.Printf(\"Error reading file: %s\\n\", err)\n\t\t\t\t\treturn \"\"\n\t\t\t\t}\n\t\t\t\treturn string(data)\n\t\t\tcase KnowledgeSourceTypeURL,\n\t\t\t\t KnowledgeSourceTypeAPI,\n\t\t\t\t KnowledgeSourceTypeText:\n\t\t\t\treturn fmt.Sprintf(\"Retrieval not implemented for type: %s\", source.Type)\n\t\t\t}\n\t\t}\n\t}\n\treturn \"\"\n}\n\nfunc AddKnowledgeSource(source KnowledgeSource) {\n\tknowledgeSources = append(knowledgeSources, source)\n}\n\nfunc RemoveKnowledgeSource(sourceName string) {\n\tfor i, source := range knowledgeSources {\n\t\tif source.Name == sourceName {\n\t\t\tknowledgeSources = append(knowledgeSources[:i], knowledgeSources[i+1:]...)\n\t\t\treturn\n\t\t}\n\t}\n}\n",
-      "commit_message": "Handle errors gracefully and add messages for unimplemented types in RetrieveKnowledge."
+      "path": "internal/app/convert.go",
+      "full_content": "package app\n\nimport (\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"strings\"\n)\n\n// unmarshalTo unmarshals JSON data into the specified type T, returning an error with detailed information upon failure.\nfunc unmarshalTo[T any](data []byte) (T, error) {\n\tvar result T\n\terr := json.Unmarshal(data, \u0026result)\n\tif err != nil {\n\t\treturn result, fmt.Errorf(\"failed to unmarshal to %T: %w\", result, err)\n\t}\n\treturn result, nil\n}\n\n// extractJSON searches a string for the first JSON object it contains and returns the JSON string if found.\n// If no valid JSON is found, it returns an empty string.\nfunc extractJSON(response string) string {\n\tstart := strings.Index(response, \"{\")\n\tif start == -1 {\n\t\treturn \"\" // No JSON found if there's no '{' character\n\t}\n\n\tend := strings.LastIndex(response, \"}\")\n\tif end == -1 || end \u003c= start {\n\t\treturn \"\" // No valid JSON present\n\t}\n\n\treturn response[start : end+1] // Include the last '}' in the substring\n}",
+      "commit_message": "Update convert.go: Enhance comments and variable naming"
     }
   ]
 }
