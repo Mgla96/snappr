@@ -65,7 +65,7 @@ func init() {
 	createCmd.Flags().StringVar(&branch, "branch", "", "Branch name to create PR from (required)")
 	createCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the created PR only")
 	createCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR creation")
-	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defualts to OpenAI)")
+	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 
 	err := createCmd.MarkFlagRequired("repository")

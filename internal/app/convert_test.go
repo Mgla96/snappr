@@ -103,7 +103,7 @@ func Test_unmarshalTo(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "unsucessful unmarshal",
+			name: "unsuccessful unmarshal",
 			args: args{
 				data: []byte(`not json`),
 			},
@@ -125,7 +125,7 @@ func Test_unmarshalTo(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "unsucessful unmarshal",
+			name: "unsuccessful unmarshal",
 			args: args{
 				data: []byte(`not json`),
 			},

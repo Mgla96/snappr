@@ -76,7 +76,7 @@ func init() {
 	reviewCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA to review (required)")
 	reviewCmd.Flags().IntVar(&prNumber, "prNumber", 0, "Pull Request number to review (required)")
 	reviewCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the review only")
-	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defualts to OpenAI)")
+	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	reviewCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 
 	err := reviewCmd.MarkFlagRequired("repository")
