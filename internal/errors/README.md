@@ -15,7 +15,7 @@ Package errors provides a convenience type for creating a const error.
 
 
 <a name="New"></a>
-## type [New](<https://github.com/Mgla96/snappr/blob/main/internal/errors/errors.go#L4>)
+## type New
 
 New is a convenience type for creating a const error using familiar syntax
 
@@ -24,7 +24,7 @@ type New string
 ```
 
 <a name="New.Error"></a>
-### func \(New\) [Error](<https://github.com/Mgla96/snappr/blob/main/internal/errors/errors.go#L7>)
+### func \(New\) Error
 
 ```go
 func (e New) Error() string

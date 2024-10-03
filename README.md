@@ -14,9 +14,6 @@
   </p>
 </div>
 
-<!-- ![Build Status](https://github.com/Mgla96/snappr/actions/workflows/ci.yml/badge.svg) -->
-<!-- [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/*/badge)](https://bestpractices.coreinfrastructure.org/projects/*)  -->
-
 ----
 
 SnapPR is a tool for snappy PR creation and review, helping developers save time and catch bugs earlier.
@@ -28,7 +25,6 @@ PR reviews can be used to add an additional static code analysis layer to your C
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-- [Configuration](#configuration)
 
 ## Installation
 
@@ -88,8 +84,6 @@ The config file used by SnapPR can be found at `~/.snappr/config.yaml` and addit
 Additional knowledge sources can be added to the `knowledgeSources` section found in the same SnapPR config file located at `~/.snappr/config.yaml`.
 
 <!-- Info about how knowledge sources work -->
-
-
 
 <!-- TODO: example of adding
 https://go.dev/wiki/CodeReviewComments
@@ -217,7 +211,7 @@ You can use the `-p` or `--printOnly` flag to print the output to STDOUT only in
 > You will also need to change some of these arguments to match your specific github repository.
 
 ```bash
-/snappr create --branch super-cool-pr --commitSHA 6700d0448ade1695d1f38b432f8c72cc1c7bb54b -p --repository snappr --repositoryOwner Mgla96 --workflowName createPR
+snappr create --branch super-cool-pr --commitSHA 6700d0448ade1695d1f38b432f8c72cc1c7bb54b -p --repository snappr --repositoryOwner Mgla96 --workflowName createPR
 {"level":"info","time":"2024-09-14T00:15:43-07:00","message":"create called"}
 2024-09-14T00:16:05-07:00 INF {
   "title": "Refactor Go Code for Better Practices and Performance",
@@ -236,7 +230,3 @@ You can use the `-p` or `--printOnly` flag to print the output to STDOUT only in
   ]
 }
 ```
-<!-- 
-### Using Llama -->
-
-## Configuration

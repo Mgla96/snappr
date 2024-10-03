@@ -35,7 +35,7 @@ package clients provides the clients for the external services used by the appli
 
 
 <a name="IsDoNotEditFile"></a>
-## func [IsDoNotEditFile](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L325>)
+## func IsDoNotEditFile
 
 ```go
 func IsDoNotEditFile(data []byte) bool
@@ -44,7 +44,7 @@ func IsDoNotEditFile(data []byte) bool
 IsDoNotEditFile checks if the file has a DO NOT EDIT comment.
 
 <a name="ModelToContextWindow"></a>
-## func [ModelToContextWindow](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L23>)
+## func ModelToContextWindow
 
 ```go
 func ModelToContextWindow(model ModelType) int
@@ -53,7 +53,7 @@ func ModelToContextWindow(model ModelType) int
 ModelToContextWindow returns the context window size for the given model.
 
 <a name="Shuffle"></a>
-## func [Shuffle](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L308>)
+## func Shuffle
 
 ```go
 func Shuffle(slice interface{})
@@ -62,7 +62,7 @@ func Shuffle(slice interface{})
 Shuffle shuffles a slice of any type
 
 <a name="CodeFilter"></a>
-## type [CodeFilter](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L124-L126>)
+## type CodeFilter
 
 CodeFilter is used to filter files based on a regex pattern.
 
@@ -73,7 +73,7 @@ type CodeFilter struct {
 ```
 
 <a name="GithubClient"></a>
-## type [GithubClient](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L19-L22>)
+## type GithubClient
 
 
 
@@ -84,7 +84,7 @@ type GithubClient struct {
 ```
 
 <a name="NewGithubClient"></a>
-### func [NewGithubClient](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L25>)
+### func NewGithubClient
 
 ```go
 func NewGithubClient(token string, logger zerolog.Logger) *GithubClient
@@ -93,7 +93,7 @@ func NewGithubClient(token string, logger zerolog.Logger) *GithubClient
 NewGithubClient creates a new instance of the GithubClient.
 
 <a name="GithubClient.AddCommentToPullRequestReview"></a>
-### func \(\*GithubClient\) [AddCommentToPullRequestReview](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L195>)
+### func \(\*GithubClient\) AddCommentToPullRequestReview
 
 ```go
 func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error)
@@ -118,7 +118,7 @@ Returns:
 - An error if any occurred during the API request.
 
 <a name="GithubClient.AddCommitToBranch"></a>
-### func \(\*GithubClient\) [AddCommitToBranch](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L70>)
+### func \(\*GithubClient\) AddCommitToBranch
 
 ```go
 func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, branch, filePath, commitMessage string, fileContent []byte) error
@@ -127,7 +127,7 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 AddCommitToBranch adds a commit to the specified branch.
 
 <a name="GithubClient.CreateBranch"></a>
-### func \(\*GithubClient\) [CreateBranch](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L39>)
+### func \(\*GithubClient\) CreateBranch
 
 ```go
 func (gc *GithubClient) CreateBranch(ctx context.Context, owner, repo, newBranch, baseBranch string) error
@@ -136,7 +136,7 @@ func (gc *GithubClient) CreateBranch(ctx context.Context, owner, repo, newBranch
 CreateBranch creates a new branch from the specified base branch.
 
 <a name="GithubClient.CreatePullRequest"></a>
-### func \(\*GithubClient\) [CreatePullRequest](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L220>)
+### func \(\*GithubClient\) CreatePullRequest
 
 ```go
 func (gc *GithubClient) CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error)
@@ -145,7 +145,7 @@ func (gc *GithubClient) CreatePullRequest(ctx context.Context, owner, repo, titl
 CreatePullRequest creates a new pull request.
 
 <a name="GithubClient.GetCommitCode"></a>
-### func \(\*GithubClient\) [GetCommitCode](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L129>)
+### func \(\*GithubClient\) GetCommitCode
 
 ```go
 func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, commitSHA string, codeFilter CodeFilter) (map[string]string, error)
@@ -154,7 +154,7 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 GetCommitCode gets the code from a commit.
 
 <a name="GithubClient.GetLatestCommitFromBranch"></a>
-### func \(\*GithubClient\) [GetLatestCommitFromBranch](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L59>)
+### func \(\*GithubClient\) GetLatestCommitFromBranch
 
 ```go
 func (gc *GithubClient) GetLatestCommitFromBranch(ctx context.Context, owner, repo, branch string) (string, error)
@@ -163,7 +163,7 @@ func (gc *GithubClient) GetLatestCommitFromBranch(ctx context.Context, owner, re
 GetLatestCommitFromBranch gets the latest commit SHA from a branch.
 
 <a name="GithubClient.GetPRCode"></a>
-### func \(\*GithubClient\) [GetPRCode](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L257>)
+### func \(\*GithubClient\) GetPRCode
 
 ```go
 func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions) (map[string]string, error)
@@ -172,7 +172,7 @@ func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNum
 GetPRCode gets the code from a pull request.
 
 <a name="GithubClient.GetPRDiff"></a>
-### func \(\*GithubClient\) [GetPRDiff](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L285>)
+### func \(\*GithubClient\) GetPRDiff
 
 ```go
 func (gc *GithubClient) GetPRDiff(ctx context.Context, owner, repo string, prNumber int) (string, error)
@@ -181,7 +181,7 @@ func (gc *GithubClient) GetPRDiff(ctx context.Context, owner, repo string, prNum
 
 
 <a name="GithubClient.GetPRPatch"></a>
-### func \(\*GithubClient\) [GetPRPatch](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L296>)
+### func \(\*GithubClient\) GetPRPatch
 
 ```go
 func (gc *GithubClient) GetPRPatch(ctx context.Context, owner, repo string, prNumber int) (string, error)
@@ -190,7 +190,7 @@ func (gc *GithubClient) GetPRPatch(ctx context.Context, owner, repo string, prNu
 
 
 <a name="GithubClient.ListPullRequests"></a>
-### func \(\*GithubClient\) [ListPullRequests](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L247>)
+### func \(\*GithubClient\) ListPullRequests
 
 ```go
 func (gc *GithubClient) ListPullRequests(ctx context.Context, owner, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, error)
@@ -199,7 +199,7 @@ func (gc *GithubClient) ListPullRequests(ctx context.Context, owner, repo string
 ListPullRequests lists all pull requests in a repository.
 
 <a name="GithubClient.MergePullRequest"></a>
-### func \(\*GithubClient\) [MergePullRequest](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/github.go#L237>)
+### func \(\*GithubClient\) MergePullRequest
 
 ```go
 func (gc *GithubClient) MergePullRequest(ctx context.Context, owner, repo string, prNumber int, commitMessage string) (*github.PullRequestMergeResult, error)
@@ -208,7 +208,7 @@ func (gc *GithubClient) MergePullRequest(ctx context.Context, owner, repo string
 MergePullRequest merges a pull request.
 
 <a name="ModelType"></a>
-## type [ModelType](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L10>)
+## type ModelType
 
 
 
@@ -227,7 +227,7 @@ const (
 ```
 
 <a name="OpenAIClient"></a>
-## type [OpenAIClient](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L18-L20>)
+## type OpenAIClient
 
 
 
@@ -238,7 +238,7 @@ type OpenAIClient struct {
 ```
 
 <a name="NewCustomOpenAIClient"></a>
-### func [NewCustomOpenAIClient](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L34>)
+### func NewCustomOpenAIClient
 
 ```go
 func NewCustomOpenAIClient(authToken, baseURL string) *OpenAIClient
@@ -247,7 +247,7 @@ func NewCustomOpenAIClient(authToken, baseURL string) *OpenAIClient
 
 
 <a name="NewOpenAIClient"></a>
-### func [NewOpenAIClient](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L44>)
+### func NewOpenAIClient
 
 ```go
 func NewOpenAIClient(apiKey string) *OpenAIClient
@@ -256,7 +256,7 @@ func NewOpenAIClient(apiKey string) *OpenAIClient
 NewOpenAIClient creates a new instance of the OpenAIClient.
 
 <a name="OpenAIClient.GenerateChatCompletion"></a>
-### func \(\*OpenAIClient\) [GenerateChatCompletion](<https://github.com/Mgla96/snappr/blob/main/internal/adapters/clients/llm.go#L62>)
+### func \(\*OpenAIClient\) GenerateChatCompletion
 
 ```go
 func (oc *OpenAIClient) GenerateChatCompletion(ctx context.Context, messages []openai.ChatCompletionMessage, model ModelType) (string, error)

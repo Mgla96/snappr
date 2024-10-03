@@ -40,7 +40,7 @@ const ServicePrefix = "PR"
 ```
 
 <a name="Config"></a>
-## type [Config](<https://github.com/Mgla96/snappr/blob/main/internal/config/config.go#L33-L37>)
+## type Config
 
 Config contains all config parameters for the service
 
@@ -53,7 +53,7 @@ type Config struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Mgla96/snappr/blob/main/internal/config/config.go#L40>)
+### func New
 
 ```go
 func New() (*Config, error)
@@ -62,7 +62,7 @@ func New() (*Config, error)
 New returns the parsed config from the environment.
 
 <a name="Github"></a>
-## type [Github](<https://github.com/Mgla96/snappr/blob/main/internal/config/config.go#L20-L24>)
+## type Github
 
 
 
@@ -75,7 +75,7 @@ type Github struct {
 ```
 
 <a name="InputConfig"></a>
-## type [InputConfig](<https://github.com/Mgla96/snappr/blob/main/internal/config/input.go#L12-L15>)
+## type InputConfig
 
 
 
@@ -87,7 +87,7 @@ type InputConfig struct {
 ```
 
 <a name="KnowledgeSource"></a>
-## type [KnowledgeSource](<https://github.com/Mgla96/snappr/blob/main/internal/config/input.go#L17-L21>)
+## type KnowledgeSource
 
 
 
@@ -100,7 +100,7 @@ type KnowledgeSource struct {
 ```
 
 <a name="KnowledgeSourceType"></a>
-## type [KnowledgeSourceType](<https://github.com/Mgla96/snappr/blob/main/internal/config/input.go#L3>)
+## type KnowledgeSourceType
 
 
 
@@ -120,7 +120,7 @@ const (
 ```
 
 <a name="LLM"></a>
-## type [LLM](<https://github.com/Mgla96/snappr/blob/main/internal/config/config.go#L26-L30>)
+## type LLM
 
 
 
@@ -133,7 +133,7 @@ type LLM struct {
 ```
 
 <a name="Log"></a>
-## type [Log](<https://github.com/Mgla96/snappr/blob/main/internal/config/config.go#L16-L18>)
+## type Log
 
 Log level config
 
@@ -144,7 +144,7 @@ type Log struct {
 ```
 
 <a name="PromptWorkflow"></a>
-## type [PromptWorkflow](<https://github.com/Mgla96/snappr/blob/main/internal/config/input.go#L28-L31>)
+## type PromptWorkflow
 
 
 
@@ -156,7 +156,7 @@ type PromptWorkflow struct {
 ```
 
 <a name="PromptWorkflowStep"></a>
-## type [PromptWorkflowStep](<https://github.com/Mgla96/snappr/blob/main/internal/config/input.go#L23-L26>)
+## type PromptWorkflowStep
 
 
 

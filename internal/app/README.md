@@ -56,7 +56,7 @@ const (
 ```
 
 <a name="CheckGHToken"></a>
-## func [CheckGHToken](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L300>)
+## func CheckGHToken
 
 ```go
 func CheckGHToken() error
@@ -65,7 +65,7 @@ func CheckGHToken() error
 CheckGHToken checks if the GH\_TOKEN environment variable is set.
 
 <a name="CheckLLMToken"></a>
-## func [CheckLLMToken](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L309>)
+## func CheckLLMToken
 
 ```go
 func CheckLLMToken() error
@@ -74,7 +74,7 @@ func CheckLLMToken() error
 CheckLLMToken checks if the LLM\_TOKEN environment variable is set.
 
 <a name="GetWorkflowByName"></a>
-## func [GetWorkflowByName](<https://github.com/Mgla96/snappr/blob/main/internal/app/workflow.go#L10>)
+## func GetWorkflowByName
 
 ```go
 func GetWorkflowByName(name string, workflowList []config.PromptWorkflow) *config.PromptWorkflow
@@ -83,7 +83,7 @@ func GetWorkflowByName(name string, workflowList []config.PromptWorkflow) *confi
 GetWorkflowByName returns workflow information by name from a list of workflows.
 
 <a name="NewDefaultPromptAndKnowledgeConfig"></a>
-## func [NewDefaultPromptAndKnowledgeConfig](<https://github.com/Mgla96/snappr/blob/main/internal/app/prompts.go#L86>)
+## func NewDefaultPromptAndKnowledgeConfig
 
 ```go
 func NewDefaultPromptAndKnowledgeConfig(configPath string) error
@@ -92,7 +92,7 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error
 NewDefaultPromptAndKnowledgeConfig creates a config.yaml file with the default prompt and knowledge config.
 
 <a name="RetrieveKnowledge"></a>
-## func [RetrieveKnowledge](<https://github.com/Mgla96/snappr/blob/main/internal/app/knowledge.go#L26>)
+## func RetrieveKnowledge
 
 ```go
 func RetrieveKnowledge(sourceName string, knowledgeSources []KnowledgeSource) (string, error)
@@ -101,7 +101,7 @@ func RetrieveKnowledge(sourceName string, knowledgeSources []KnowledgeSource) (s
 
 
 <a name="App"></a>
-## type [App](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L87-L92>)
+## type App
 
 
 
@@ -112,7 +112,7 @@ type App struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L95-L96>)
+### func New
 
 ```go
 func New(cfg *config.Config, githubClient githubClient, llmClient llmClient, logger zerolog.Logger) (*App, error)
@@ -121,7 +121,7 @@ func New(cfg *config.Config, githubClient githubClient, llmClient llmClient, log
 New creates a new instance of the App.
 
 <a name="Setup"></a>
-### func [Setup](<https://github.com/Mgla96/snappr/blob/main/internal/app/setup.go#L14>)
+### func Setup
 
 ```go
 func Setup() *App
@@ -130,7 +130,7 @@ func Setup() *App
 Setup sets up the application utilizing environment variables.
 
 <a name="SetupNoEnv"></a>
-### func [SetupNoEnv](<https://github.com/Mgla96/snappr/blob/main/internal/app/setup.go#L35>)
+### func SetupNoEnv
 
 ```go
 func SetupNoEnv(cfg *config.Config) *App
@@ -139,7 +139,7 @@ func SetupNoEnv(cfg *config.Config) *App
 SetupNoEnv sets up the application from a config struct instead of utilizing environment variables.
 
 <a name="App.ExecuteCreatePR"></a>
-### func \(\*App\) [ExecuteCreatePR](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L108>)
+### func \(\*App\) ExecuteCreatePR
 
 ```go
 func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowName, fileRegexPattern string, printOnly bool) error
@@ -148,7 +148,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 ExecuteCreatePR executes the create PR workflow.
 
 <a name="App.ExecutePRReview"></a>
-### func \(\*App\) [ExecutePRReview](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L189>)
+### func \(\*App\) ExecutePRReview
 
 ```go
 func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber int, workflowName string, printOnly bool) error
@@ -157,7 +157,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 ExecutePRReview executes the PR review workflow.
 
 <a name="FileChange"></a>
-## type [FileChange](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L74-L78>)
+## type FileChange
 
 
 
@@ -170,7 +170,7 @@ type FileChange struct {
 ```
 
 <a name="KnowledgeSource"></a>
-## type [KnowledgeSource](<https://github.com/Mgla96/snappr/blob/main/internal/app/knowledge.go#L18-L22>)
+## type KnowledgeSource
 
 
 
@@ -183,7 +183,7 @@ type KnowledgeSource struct {
 ```
 
 <a name="KnowledgeSourceType"></a>
-## type [KnowledgeSourceType](<https://github.com/Mgla96/snappr/blob/main/internal/app/knowledge.go#L8>)
+## type KnowledgeSourceType
 
 
 
@@ -192,7 +192,7 @@ type KnowledgeSourceType string
 ```
 
 <a name="PRChanges"></a>
-## type [PRChanges](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L70-L72>)
+## type PRChanges
 
 
 
@@ -203,7 +203,7 @@ type PRChanges struct {
 ```
 
 <a name="PRCommentInfo"></a>
-## type [PRCommentInfo](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L81-L85>)
+## type PRCommentInfo
 
 
 
@@ -216,7 +216,7 @@ type PRCommentInfo struct {
 ```
 
 <a name="PRCreation"></a>
-## type [PRCreation](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L53-L60>)
+## type PRCreation
 
 
 
@@ -232,7 +232,7 @@ type PRCreation struct {
 ```
 
 <a name="PRCreationFile"></a>
-## type [PRCreationFile](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L62-L68>)
+## type PRCreationFile
 
 
 
@@ -247,7 +247,7 @@ type PRCreationFile struct {
 ```
 
 <a name="PRReviewMap"></a>
-## type [PRReviewMap](<https://github.com/Mgla96/snappr/blob/main/internal/app/app.go#L80>)
+## type PRReviewMap
 
 
 
@@ -256,7 +256,7 @@ type PRReviewMap map[string][]PRCommentInfo
 ```
 
 <a name="SnapprUserConfig"></a>
-## type [SnapprUserConfig](<https://github.com/Mgla96/snappr/blob/main/internal/app/prompts.go#L80-L83>)
+## type SnapprUserConfig
 
 
 
