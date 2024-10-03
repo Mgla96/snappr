@@ -10,12 +10,9 @@
     <a href="https://goreportcard.com/report/github.com/Mgla96/snappr">
       <img src="https://goreportcard.com/badge/github.com/Mgla96/snappr" alt="Go Report Card"/>
     </a>
-    <img src="https://img.shields.io/github/v/release/mgla6/snappr?sort=semver" alt="GitHub Release (latest SemVer)"/>
+    <img src="https://img.shields.io/github/v/release/mgla96/snappr?sort=semver" alt="GitHub Release (latest SemVer)"/>
   </p>
 </div>
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/Mgla96/snappr)](https://goreportcard.com/report/github.com/Mgla96/snappr)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mgla96/snappr?sort=semver)
 
 ----
 
