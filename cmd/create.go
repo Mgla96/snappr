@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var branch string
-var fileRegexPattern string
+var branch, fileRegexPattern, workflowName, repository, repositoryOwner, commitSHA, llmEndpoint string
+var printOnly bool
 var llmRetries int
 
 // createCmd represents the create command
@@ -59,37 +59,24 @@ func init() {
 	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringVar(&repository, "repository", "", "Github repository to review such as snappr (required)")
-	createCmd.Flags().StringVar(&repositoryOwner, "repositoryOwner", "", "The account owner of the repository. The name is not case sensitive. (required)")
-	createCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA to create PR from (required)")
+	createCmd.Flags().StringVar(&repository, "repository", "", "Github repository to discuss, e.g., 'example/repo' (required)")
+	createCmd.Flags().StringVar(&repositoryOwner, "repositoryOwner", "", "The account owner of the repository. The name is not case-sensitive. (required)")
+	createCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA for creating PR (required)")
 	createCmd.Flags().StringVar(&branch, "branch", "", "Branch name to create PR from (required)")
-	createCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the created PR only")
-	createCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR creation")
-	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
-	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
-
-	err := createCmd.MarkFlagRequired("repository")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking repository as required")
-	}
-
-	err = createCmd.MarkFlagRequired("repositoryOwner")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking repositoryOwner as required")
-	}
-
-	err = createCmd.MarkFlagRequired("commitSHA")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking commitSHA as required")
-	}
-	err = createCmd.MarkFlagRequired("branch")
-	if err != nil {
-		logger.Err(err).Msg("Error marking branch as required")
-	}
-
 	createCmd.Flags().StringVar(&workflowName, "workflowName", "", "Prompt workflow to use (required)")
-	err = createCmd.MarkFlagRequired("workflowName")
-	if err != nil {
-		logger.Err(err).Msg("Error marking workflowName as required")
+	createCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Only print the resulting PR")
+	createCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Regex pattern to filter files relevant for PR")
+	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "LLM service endpoint (default: 'openai')")
+	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM service calls upon failure")
+
+	setRequiredFlags(createCmd, []string{"repository", "repositoryOwner", "commitSHA", "branch", "workflowName"})
+}
+
+func setRequiredFlags(cmd *cobra.Command, flags []string) {
+	for _, flag := range flags {
+		err := cmd.MarkFlagRequired(flag)
+		if err != nil {
+			logger.Fatal().Err(err).Msgf("Failed to mark '%s' as required", flag)
+		}
 	}
 }
