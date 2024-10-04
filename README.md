@@ -1,18 +1,23 @@
-# SnapPR
-
-<div align="center">
-<img src="assets/logo.jpeg" alt="Logo" width="250"/>
-
-<p>
-    <a href="LICENSE">
-      <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"/>
-    </a>
-    <a href="https://goreportcard.com/report/github.com/Mgla96/snappr">
-      <img src="https://goreportcard.com/badge/github.com/Mgla96/snappr" alt="Go Report Card"/>
-    </a>
+<h1 align="center">
+  <img src="assets/logo.jpeg" alt="Logo" height="250px">
+  <br>
+  SnapPR
+  <br>
+</h1>
+<h4 align="center">A tool for snappy PR creation and review, helping developers save time and catch bugs earlier.</h4>
+<p align="center">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"/>
+  </a>
+  <a href="https://goreportcard.com/report/github.com/Mgla96/snappr">
+    <img src="https://goreportcard.com/badge/github.com/Mgla96/snappr" alt="Go Report Card"/>
+  </a>
+  <a href="">
     <img src="https://img.shields.io/github/v/release/mgla96/snappr?sort=semver" alt="GitHub Release (latest SemVer)"/>
-  </p>
-</div>
+  </a>
+  <a href="https://codecov.io/gh/mgla96/snappr">
+    <img src="https://codecov.io/gh/mgla96/snappr/branch/main/graph/badge.svg" alt="Coverage Status">
+  </a>
 
 ----
 
