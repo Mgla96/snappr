@@ -5,6 +5,7 @@
   <br>
 </h1>
 <h4 align="center">A tool for snappy PR creation and review, helping developers save time and catch bugs earlier.</h4>
+<h5 align="center">PR reviews can be used to add an additional static code analysis layer to your CI pipelines.</h5>
 <p align="center">
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"/>
@@ -19,13 +20,7 @@
     <img src="https://codecov.io/gh/mgla96/snappr/branch/main/graph/badge.svg" alt="Coverage Status">
   </a>
 
-----
-
-SnapPR is a tool for snappy PR creation and review, helping developers save time and catch bugs earlier.
-
-PR reviews can be used to add an additional static code analysis layer to your CI pipelines.
-
-----
+---
 
 ## Table of Contents
 - [Installation](#installation)
