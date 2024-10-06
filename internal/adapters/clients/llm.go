@@ -15,8 +15,17 @@ const (
 	GPT4_turbo      ModelType = "gpt-4-turbo"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+// openAIBackingClient is an interface for openai.Client
+//
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . openAIBackingClient
+type openAIBackingClient interface {
+	CreateChatCompletion(ctx context.Context, request openai.ChatCompletionRequest) (response openai.ChatCompletionResponse, err error)
+}
+
 type OpenAIClient struct {
-	aiClient *openai.Client
+	aiClient openAIBackingClient
 }
 
 // ModelToContextWindow returns the context window size for the given model.
