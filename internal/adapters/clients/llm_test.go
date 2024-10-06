@@ -96,6 +96,31 @@ func TestOpenAIClient_GenerateChatCompletion(t *testing.T) {
 			wantErr:     true,
 			wantErrType: ErrNoChatCompletionChoices,
 		},
+		{
+			name: "success",
+			fields: fields{
+				aiClient: &clientsfakes.FakeOpenAIBackingClient{
+					CreateChatCompletionStub: func(ctx context.Context, request openai.ChatCompletionRequest) (response openai.ChatCompletionResponse, err error) {
+						return openai.ChatCompletionResponse{
+							Choices: []openai.ChatCompletionChoice{
+								{
+									Message: openai.ChatCompletionMessage{
+										Content: "foobar",
+									},
+								},
+							},
+						}, nil
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				messages: []openai.ChatCompletionMessage{},
+				model:    GPT3_5Turbo0125,
+			},
+			want:    "foobar",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
