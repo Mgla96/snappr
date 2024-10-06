@@ -2,8 +2,8 @@ package clients
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/Mgla96/snappr/internal/errors"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -11,8 +11,9 @@ type ModelType string
 
 const (
 	// GPT3_5Turbo0125 is the GPT-3.5-turbo-0125 model.
-	GPT3_5Turbo0125 ModelType = "gpt-3.5-turbo-0125"
-	GPT4_turbo      ModelType = "gpt-4-turbo"
+	GPT3_5Turbo0125            ModelType = "gpt-3.5-turbo-0125"
+	GPT4_turbo                 ModelType = "gpt-4-turbo"
+	ErrNoChatCompletionChoices           = errors.New("no chat completion choices returned")
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
@@ -80,7 +81,7 @@ func (oc *OpenAIClient) GenerateChatCompletion(ctx context.Context, messages []o
 	}
 
 	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("no chat completion choices returned")
+		return "", ErrNoChatCompletionChoices
 	}
 
 	return resp.Choices[0].Message.Content, nil
