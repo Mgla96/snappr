@@ -142,3 +142,57 @@ func TestOpenAIClient_GenerateChatCompletion(t *testing.T) {
 		})
 	}
 }
+
+func TestNewCustomOpenAIClient(t *testing.T) {
+	type args struct {
+		authToken string
+		baseURL   string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "Valid authToken and baseURL",
+			args: args{
+				authToken: "foobar",
+				baseURL:   "http://foobar.com",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewCustomOpenAIClient(tt.args.authToken, tt.args.baseURL)
+
+			if got.aiClient == nil {
+				t.Errorf("NewCustomOpenAIClient() aiClient = nil, want not nil")
+			}
+		})
+	}
+}
+
+func TestNewOpenAIClient(t *testing.T) {
+	type args struct {
+		apiKey string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "Valid apiKey",
+			args: args{
+				apiKey: "foobar",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewOpenAIClient(tt.args.apiKey)
+
+			if got.aiClient == nil {
+				t.Errorf("NewCustomOpenAIClient() aiClient = nil, want not nil")
+			}
+		})
+	}
+}
