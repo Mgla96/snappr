@@ -23,6 +23,8 @@ const (
 	system                  role = "system"
 	user                    role = "user"
 	ErrUnmarshalLLMResponse      = errors.New("error unmarshalling LLM response")
+	ErrMissingGHToken            = errors.New("GH_TOKEN environment variable is required. Please set it before running this command")
+	ErrMissingLLMToken           = errors.New("LLM_TOKEN environment variable is required. Please set it before running this command")
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
@@ -300,7 +302,7 @@ func parseRawDiff(diff string) map[string]string {
 func CheckGHToken() error {
 	token := os.Getenv("GH_TOKEN")
 	if token == "" {
-		return fmt.Errorf("GH_TOKEN environment variable is required. Please set it before running this command")
+		return ErrMissingGHToken
 	}
 	return nil
 }
@@ -309,7 +311,19 @@ func CheckGHToken() error {
 func CheckLLMToken() error {
 	token := os.Getenv("LLM_TOKEN")
 	if token == "" {
-		return fmt.Errorf("LLM_TOKEN environment variable is required. Please set it before running this command")
+		return ErrMissingLLMToken
+	}
+	return nil
+}
+
+func CheckTokens() error {
+	err := CheckGHToken()
+	if err != nil {
+		return fmt.Errorf("error no github token: %w", err)
+	}
+	err = CheckLLMToken()
+	if err != nil {
+		return fmt.Errorf("error no llm token: %w", err)
 	}
 	return nil
 }

@@ -633,6 +633,30 @@ func TestCheckLLMToken(t *testing.T) {
 	})
 }
 
+func TestCheckTokens(t *testing.T) {
+	t.Run("Missing GH_TOKEN", func(t *testing.T) {
+		os.Unsetenv("GH_TOKEN")
+		os.Setenv("LLM_TOKEN", "foobar")
+		err := CheckTokens()
+		require.Error(t, err)
+		require.EqualError(t, err, "error no github token: GH_TOKEN environment variable is required. Please set it before running this command")
+	})
+	t.Run("Missing LLM_TOKEN", func(t *testing.T) {
+		os.Setenv("GH_TOKEN", "foobar")
+		os.Unsetenv("LLM_TOKEN")
+		err := CheckTokens()
+		require.Error(t, err)
+		require.EqualError(t, err, "error no llm token: LLM_TOKEN environment variable is required. Please set it before running this command")
+	})
+
+	t.Run("GH_TOKEN and LLM token set", func(t *testing.T) {
+		os.Setenv("GH_TOKEN", "foobar")
+		os.Setenv("LLM_TOKEN", "foobar")
+		err := CheckTokens()
+		require.NoError(t, err)
+	})
+}
+
 func TestNew(t *testing.T) {
 	cfg := &config.Config{
 		Log: config.Log{
