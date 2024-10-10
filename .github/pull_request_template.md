@@ -1,8 +1,6 @@
-# Pull Request Template
+### Description
 
-## Description
-
-Please provide a detailed description of the changes made in this PR. Include the purpose, motivation, and context of the PR. Reference related issues if applicable.
+Please explain the changes you made here. Reference related issues if applicable.
 
 ### Type of Change
 
@@ -24,7 +22,7 @@ Fixes # (issue number)
 
 ### How Has This Been Tested?
 
-Describe how the changes were tested. Include details of test configurations and scenarios covered by the tests (unit tests, integration tests, e2e tests). Include CI test results if applicable.
+Describe how the changes were tested.
 
 ### Additional Context
 
