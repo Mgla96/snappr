@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/Mgla96/snappr/internal/app"
@@ -26,15 +25,7 @@ var reviewCmd = &cobra.Command{
 	// 	Long: `A longer description that spans multiple lines and likely contains examples
 	// and usage of using your command. For example:
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		err := app.CheckGHToken()
-		if err != nil {
-			return fmt.Errorf("error no github token: %w", err)
-		}
-		err = app.CheckLLMToken()
-		if err != nil {
-			return fmt.Errorf("error no llm token: %w", err)
-		}
-		return nil
+		return app.CheckTokens()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := zerolog.New(os.Stderr).With().Timestamp().Logger()

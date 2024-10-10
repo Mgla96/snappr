@@ -13,6 +13,7 @@ Package app provides the main business logic for the snappr application.
 - [Constants](<#constants>)
 - [func CheckGHToken\(\) error](<#CheckGHToken>)
 - [func CheckLLMToken\(\) error](<#CheckLLMToken>)
+- [func CheckTokens\(\) error](<#CheckTokens>)
 - [func GetWorkflowByName\(name string, workflowList \[\]config.PromptWorkflow\) \*config.PromptWorkflow](<#GetWorkflowByName>)
 - [func NewDefaultPromptAndKnowledgeConfig\(configPath string\) error](<#NewDefaultPromptAndKnowledgeConfig>)
 - [func RetrieveKnowledge\(sourceName string, knowledgeSources \[\]KnowledgeSource\) \(string, error\)](<#RetrieveKnowledge>)
@@ -35,6 +36,16 @@ Package app provides the main business logic for the snappr application.
 
 ## Constants
 
+<a name="ErrUnmarshalLLMResponse"></a>
+
+```go
+const (
+    ErrUnmarshalLLMResponse = errors.New("error unmarshalling LLM response")
+    ErrMissingGHToken       = errors.New("GH_TOKEN environment variable is required. Please set it before running this command")
+    ErrMissingLLMToken      = errors.New("LLM_TOKEN environment variable is required. Please set it before running this command")
+)
+```
+
 <a name="KnowledgeSourceTypeFile"></a>
 
 ```go
@@ -44,14 +55,6 @@ const (
     KnowledgeSourceTypeAPI  KnowledgeSourceType = "api"
     KnowledgeSourceTypeText KnowledgeSourceType = "text"
     NotImplementedMessage   string              = "Not implemented"
-)
-```
-
-<a name="ErrUnmarshalLLMResponse"></a>
-
-```go
-const (
-    ErrUnmarshalLLMResponse = errors.New("error unmarshalling LLM response")
 )
 ```
 
@@ -72,6 +75,15 @@ func CheckLLMToken() error
 ```
 
 CheckLLMToken checks if the LLM\_TOKEN environment variable is set.
+
+<a name="CheckTokens"></a>
+## func CheckTokens
+
+```go
+func CheckTokens() error
+```
+
+
 
 <a name="GetWorkflowByName"></a>
 ## func GetWorkflowByName

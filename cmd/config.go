@@ -20,5 +20,4 @@ These configuration values are by default stored in ~/.snappr/config.yaml and ca
 func init() {
 	rootCmd.AddCommand(configCmd)
 	configCmd.AddCommand(listCmd)
-	configCmd.AddCommand(validateCmd)
 }

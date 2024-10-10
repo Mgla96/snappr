@@ -221,8 +221,9 @@ type ModelType string
 ```go
 const (
     // GPT3_5Turbo0125 is the GPT-3.5-turbo-0125 model.
-    GPT3_5Turbo0125 ModelType = "gpt-3.5-turbo-0125"
-    GPT4_turbo      ModelType = "gpt-4-turbo"
+    GPT3_5Turbo0125            ModelType = "gpt-3.5-turbo-0125"
+    GPT4_turbo                 ModelType = "gpt-4-turbo"
+    ErrNoChatCompletionChoices           = errors.New("no chat completion choices returned")
 )
 ```
 

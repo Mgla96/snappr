@@ -262,6 +262,7 @@ func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNum
 
 	files := make(map[string]string)
 	for _, commitFile := range commitFiles {
+		// TODO(mgottlieb): Use custom regex pattern instead of hardcoding to .go
 		if strings.HasSuffix(commitFile.GetFilename(), ".go") {
 			blob, resp, err := gc.ghClient.Git.GetBlob(ctx, owner, repo, commitFile.GetSHA())
 			if err != nil {
@@ -286,7 +287,6 @@ func (gc *GithubClient) GetPRDiff(ctx context.Context, owner, repo string, prNum
 	diffOpts := &github.RawOptions{Type: github.Diff}
 	diff, _, err := gc.ghClient.PullRequests.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
 	if err != nil {
-		gc.log.Error().Err(err).Msg("Failed to retrieve the pull request diff")
 		return "", fmt.Errorf("error retrieving PR diff: %w", err)
 	}
 
@@ -297,7 +297,6 @@ func (gc *GithubClient) GetPRPatch(ctx context.Context, owner, repo string, prNu
 	diffOpts := &github.RawOptions{Type: github.Patch}
 	diff, _, err := gc.ghClient.PullRequests.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
 	if err != nil {
-		gc.log.Error().Err(err).Msg("Failed to retrieve the pull request diff")
 		return "", fmt.Errorf("error retrieving PR diff: %w", err)
 	}
 
