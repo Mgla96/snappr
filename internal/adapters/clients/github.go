@@ -16,7 +16,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GitService interface {
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+// gitService is an interface for interacting with github git service
+//
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . gitService
+type gitService interface {
 	CreateBlob(ctx context.Context, owner string, repo string, blob *github.Blob) (*github.Blob, *github.Response, error)
 	CreateCommit(ctx context.Context, owner string, repo string, commit *github.Commit) (*github.Commit, *github.Response, error)
 	CreateRef(ctx context.Context, owner string, repo string, ref *github.Reference) (*github.Reference, *github.Response, error)
@@ -33,7 +38,12 @@ type GitService interface {
 	UpdateRef(ctx context.Context, owner string, repo string, ref *github.Reference, force bool) (*github.Reference, *github.Response, error)
 }
 
-type PullRequestService interface {
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+// pullRequestService is an interface for interacting with github pull request service
+//
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pullRequestService
+type pullRequestService interface {
 	Create(ctx context.Context, owner string, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
 	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
 	CreateCommentInReplyTo(ctx context.Context, owner string, repo string, number int, body string, commentID int64) (*github.PullRequestComment, *github.Response, error)
@@ -65,8 +75,8 @@ type PullRequestService interface {
 }
 
 type GithubClient struct {
-	ghGitClient         GitService
-	ghPullRequestClient PullRequestService
+	ghGitClient         gitService
+	ghPullRequestClient pullRequestService
 	log                 zerolog.Logger
 }
 
