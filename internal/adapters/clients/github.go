@@ -125,6 +125,37 @@ type CodeFilter struct {
 	FileRegexPattern string
 }
 
+func (gc *GithubClient) processEntry(entry *github.TreeEntry, codeFilter CodeFilter, context context.Context, owner, repo string, files map[string]string) error {
+	if entry.GetType() != "blob" {
+		return nil
+	}
+
+	re, err := regexp.Compile(codeFilter.FileRegexPattern)
+	if err != nil {
+		return fmt.Errorf("error compiling regex: %w", err)
+	}
+	if re.MatchString(entry.GetPath()) {
+		blob, resp, err := gc.ghClient.Git.GetBlob(context, owner, repo, entry.GetSHA())
+		if err != nil {
+			return fmt.Errorf("error getting blob: %w", err)
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
+		}
+		content, err := base64.StdEncoding.DecodeString(blob.GetContent())
+		if err != nil {
+			return fmt.Errorf("error base64 decoding blob string: %w", err)
+		}
+		// if first line has substring DO NOT EDIT then skip
+		if IsDoNotEditFile(content) {
+			return nil
+		}
+
+		files[entry.GetPath()] = string(content)
+	}
+	return nil
+}
+
 // GetCommitCode gets the code from a commit.
 func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, commitSHA string, codeFilter CodeFilter) (map[string]string, error) {
 	commit, _, err := gc.ghClient.Git.GetCommit(context, owner, repo, commitSHA)
@@ -145,35 +176,11 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 		if len(files) >= 5 {
 			break // Stop processing once we have 5 entries. Temporary fix for context length limit reached
 		}
-		if entry.GetType() != "blob" {
-			continue
-		}
-
-		re, err := regexp.Compile(codeFilter.FileRegexPattern)
+		err := gc.processEntry(entry, codeFilter, context, owner, repo, files)
 		if err != nil {
-			return nil, fmt.Errorf("error compiling regex: %w", err)
-		}
-		if re.MatchString(entry.GetPath()) {
-			blob, resp, err := gc.ghClient.Git.GetBlob(context, owner, repo, entry.GetSHA())
-			if err != nil {
-				return nil, fmt.Errorf("error getting blob: %w", err)
-			}
-			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-				return nil, fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
-			}
-			content, err := base64.StdEncoding.DecodeString(blob.GetContent())
-			if err != nil {
-				return nil, fmt.Errorf("error base64 decoding blob string: %w", err)
-			}
-			// if first line has substring DO NOT EDIT then skip
-			if IsDoNotEditFile(content) {
-				continue
-			}
-
-			files[entry.GetPath()] = string(content)
+			return nil, err
 		}
 	}
-
 	return files, nil
 }
 
