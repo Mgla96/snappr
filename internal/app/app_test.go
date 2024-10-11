@@ -682,10 +682,9 @@ func TestNew(t *testing.T) {
 		logger       zerolog.Logger
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *App
-		wantErr bool
+		name string
+		args args
+		want *App
 	}{
 		{
 			name: "New App",
@@ -705,11 +704,7 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := New(tt.args.cfg, tt.args.githubClient, tt.args.llmClient, tt.args.logger)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := New(tt.args.cfg, tt.args.githubClient, tt.args.llmClient, tt.args.logger)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
 			}

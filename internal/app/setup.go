@@ -23,12 +23,7 @@ func Setup() *App {
 	ghClient := clients.NewGithubClient(cfg.Github.Token, log.Logger)
 	llmClient := clients.NewOpenAIClient(cfg.LLM.Token)
 
-	application, err := New(cfg, ghClient, llmClient, log.Logger)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create application")
-	}
-
-	return application
+	return New(cfg, ghClient, llmClient, log.Logger)
 }
 
 // SetupNoEnv sets up the application from a config struct instead of utilizing environment variables.
@@ -46,10 +41,5 @@ func SetupNoEnv(cfg *config.Config) *App {
 		llmClient = clients.NewOpenAIClient(cfg.LLM.Token)
 	}
 
-	application, err := New(cfg, ghClient, llmClient, log.Logger)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create application")
-	}
-
-	return application
+	return New(cfg, ghClient, llmClient, log.Logger)
 }
