@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/Mgla96/snappr/internal/adapters/clients"
 	"github.com/Mgla96/snappr/internal/app"
 	"github.com/Mgla96/snappr/internal/config"
 	"github.com/rs/zerolog"
@@ -47,7 +48,7 @@ var reviewCmd = &cobra.Command{
 			},
 			LLM: config.LLM{
 				Token:        os.Getenv("LLM_TOKEN"),
-				DefaultModel: "gpt-4-turbo",
+				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
 			},
 		})
@@ -65,6 +66,7 @@ func init() {
 	reviewCmd.Flags().StringVar(&repository, "repository", "", "Github repository to review such as snappr (required)")
 	reviewCmd.Flags().StringVar(&repositoryOwner, "repositoryOwner", "", "The account owner of the repository. The name is not case sensitive. (required)")
 	reviewCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA to review (required)")
+	reviewCmd.Flags().StringVar(&llmModel, "llmModel", "gpt-4-turbo", "Model to use for LLM")
 	reviewCmd.Flags().IntVar(&prNumber, "prNumber", 0, "Pull Request number to review (required)")
 	reviewCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the review only")
 	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
