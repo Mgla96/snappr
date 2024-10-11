@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/Mgla96/snappr/internal/adapters/clients"
 	"github.com/Mgla96/snappr/internal/app"
 	"github.com/Mgla96/snappr/internal/config"
 	"github.com/rs/zerolog"
@@ -13,6 +14,7 @@ import (
 var branch string
 var fileRegexPattern string
 var llmRetries int
+var llmModel string
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
@@ -35,7 +37,7 @@ var createCmd = &cobra.Command{
 			},
 			LLM: config.LLM{
 				Token:        os.Getenv("LLM_TOKEN"),
-				DefaultModel: "gpt-4-turbo",
+				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
 			},
 		})
@@ -54,6 +56,7 @@ func init() {
 	createCmd.Flags().StringVar(&repositoryOwner, "repositoryOwner", "", "The account owner of the repository. The name is not case sensitive. (required)")
 	createCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA to create PR from (required)")
 	createCmd.Flags().StringVar(&branch, "branch", "", "Branch name to create PR from (required)")
+	createCmd.Flags().StringVar(&llmModel, "llmModel", "gpt-4-turbo", "Model to use for LLM")
 	createCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the created PR only")
 	createCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR creation")
 	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
