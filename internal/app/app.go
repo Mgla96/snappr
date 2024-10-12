@@ -95,7 +95,7 @@ type App struct {
 
 // New creates a new instance of the App.
 func New(
-	cfg *config.Config, githubClient githubClient, llmClient llmClient, logger zerolog.Logger) (*App, error) {
+	cfg *config.Config, githubClient githubClient, llmClient llmClient, logger zerolog.Logger) *App {
 	app := &App{
 		cfg:          cfg,
 		githubClient: githubClient,
@@ -103,7 +103,7 @@ func New(
 		log:          logger,
 	}
 
-	return app, nil
+	return app
 }
 
 // ExecuteCreatePR executes the create PR workflow.

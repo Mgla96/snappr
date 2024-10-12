@@ -16,9 +16,68 @@ import (
 	"golang.org/x/oauth2"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+// gitService is an interface for interacting with github git service
+//
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . gitService
+type gitService interface {
+	CreateBlob(ctx context.Context, owner string, repo string, blob *github.Blob) (*github.Blob, *github.Response, error)
+	CreateCommit(ctx context.Context, owner string, repo string, commit *github.Commit) (*github.Commit, *github.Response, error)
+	CreateRef(ctx context.Context, owner string, repo string, ref *github.Reference) (*github.Reference, *github.Response, error)
+	CreateTag(ctx context.Context, owner string, repo string, tag *github.Tag) (*github.Tag, *github.Response, error)
+	CreateTree(ctx context.Context, owner string, repo string, baseTree string, entries []*github.TreeEntry) (*github.Tree, *github.Response, error)
+	DeleteRef(ctx context.Context, owner string, repo string, ref string) (*github.Response, error)
+	GetBlob(ctx context.Context, owner string, repo string, sha string) (*github.Blob, *github.Response, error)
+	GetBlobRaw(ctx context.Context, owner string, repo string, sha string) ([]byte, *github.Response, error)
+	GetCommit(ctx context.Context, owner string, repo string, sha string) (*github.Commit, *github.Response, error)
+	GetRef(ctx context.Context, owner string, repo string, ref string) (*github.Reference, *github.Response, error)
+	GetTag(ctx context.Context, owner string, repo string, sha string) (*github.Tag, *github.Response, error)
+	GetTree(ctx context.Context, owner string, repo string, sha string, recursive bool) (*github.Tree, *github.Response, error)
+	ListMatchingRefs(ctx context.Context, owner string, repo string, opts *github.ReferenceListOptions) ([]*github.Reference, *github.Response, error)
+	UpdateRef(ctx context.Context, owner string, repo string, ref *github.Reference, force bool) (*github.Reference, *github.Response, error)
+}
+
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
+// pullRequestService is an interface for interacting with github pull request service
+//
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pullRequestService
+type pullRequestService interface {
+	Create(ctx context.Context, owner string, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
+	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
+	CreateCommentInReplyTo(ctx context.Context, owner string, repo string, number int, body string, commentID int64) (*github.PullRequestComment, *github.Response, error)
+	CreateReview(ctx context.Context, owner string, repo string, number int, review *github.PullRequestReviewRequest) (*github.PullRequestReview, *github.Response, error)
+	DeleteComment(ctx context.Context, owner string, repo string, commentID int64) (*github.Response, error)
+	DeletePendingReview(ctx context.Context, owner string, repo string, number int, reviewID int64) (*github.PullRequestReview, *github.Response, error)
+	DismissReview(ctx context.Context, owner string, repo string, number int, reviewID int64, review *github.PullRequestReviewDismissalRequest) (*github.PullRequestReview, *github.Response, error)
+	Edit(ctx context.Context, owner string, repo string, number int, pull *github.PullRequest) (*github.PullRequest, *github.Response, error)
+	EditComment(ctx context.Context, owner string, repo string, commentID int64, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
+	Get(ctx context.Context, owner string, repo string, number int) (*github.PullRequest, *github.Response, error)
+	GetComment(ctx context.Context, owner string, repo string, commentID int64) (*github.PullRequestComment, *github.Response, error)
+	GetRaw(ctx context.Context, owner string, repo string, number int, opts github.RawOptions) (string, *github.Response, error)
+	GetReview(ctx context.Context, owner string, repo string, number int, reviewID int64) (*github.PullRequestReview, *github.Response, error)
+	IsMerged(ctx context.Context, owner string, repo string, number int) (bool, *github.Response, error)
+	List(ctx context.Context, owner string, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error)
+	ListComments(ctx context.Context, owner string, repo string, number int, opts *github.PullRequestListCommentsOptions) ([]*github.PullRequestComment, *github.Response, error)
+	ListCommits(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.RepositoryCommit, *github.Response, error)
+	ListFiles(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.CommitFile, *github.Response, error)
+	ListPullRequestsWithCommit(ctx context.Context, owner string, repo string, sha string, opts *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error)
+	ListReviewComments(ctx context.Context, owner string, repo string, number int, reviewID int64, opts *github.ListOptions) ([]*github.PullRequestComment, *github.Response, error)
+	ListReviewers(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) (*github.Reviewers, *github.Response, error)
+	ListReviews(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.PullRequestReview, *github.Response, error)
+	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
+	RemoveReviewers(ctx context.Context, owner string, repo string, number int, reviewers github.ReviewersRequest) (*github.Response, error)
+	RequestReviewers(ctx context.Context, owner string, repo string, number int, reviewers github.ReviewersRequest) (*github.PullRequest, *github.Response, error)
+	SubmitReview(ctx context.Context, owner string, repo string, number int, reviewID int64, review *github.PullRequestReviewRequest) (*github.PullRequestReview, *github.Response, error)
+	UpdateBranch(ctx context.Context, owner string, repo string, number int, opts *github.PullRequestBranchUpdateOptions) (*github.PullRequestBranchUpdateResponse, *github.Response, error)
+	UpdateReview(ctx context.Context, owner string, repo string, number int, reviewID int64, body string) (*github.PullRequestReview, *github.Response, error)
+}
+
 type GithubClient struct {
-	ghClient *github.Client
-	log      zerolog.Logger
+	ghGitClient         gitService
+	ghPullRequestClient pullRequestService
+	log                 zerolog.Logger
 }
 
 // NewGithubClient creates a new instance of the GithubClient.
@@ -30,14 +89,15 @@ func NewGithubClient(token string, logger zerolog.Logger) *GithubClient {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 	return &GithubClient{
-		ghClient: client,
-		log:      logger,
+		ghGitClient:         client.Git,
+		ghPullRequestClient: client.PullRequests,
+		log:                 logger,
 	}
 }
 
 // CreateBranch creates a new branch from the specified base branch.
 func (gc *GithubClient) CreateBranch(ctx context.Context, owner, repo, newBranch, baseBranch string) error {
-	baseRef, _, err := gc.ghClient.Git.GetRef(ctx, owner, repo, "refs/heads/"+baseBranch)
+	baseRef, _, err := gc.ghGitClient.GetRef(ctx, owner, repo, "refs/heads/"+baseBranch)
 	if err != nil {
 		return fmt.Errorf("failed to get base branch reference: %w", err)
 	}
@@ -47,7 +107,7 @@ func (gc *GithubClient) CreateBranch(ctx context.Context, owner, repo, newBranch
 		Object: &github.GitObject{SHA: baseRef.Object.SHA},
 	}
 
-	_, _, err = gc.ghClient.Git.CreateRef(ctx, owner, repo, newRef)
+	_, _, err = gc.ghGitClient.CreateRef(ctx, owner, repo, newRef)
 	if err != nil {
 		return fmt.Errorf("failed to create new branch reference: %w", err)
 	}
@@ -57,7 +117,7 @@ func (gc *GithubClient) CreateBranch(ctx context.Context, owner, repo, newBranch
 
 // GetLatestCommitFromBranch gets the latest commit SHA from a branch.
 func (gc *GithubClient) GetLatestCommitFromBranch(ctx context.Context, owner, repo, branch string) (string, error) {
-	ref, _, err := gc.ghClient.Git.GetRef(ctx, owner, repo, "refs/heads/"+branch)
+	ref, _, err := gc.ghGitClient.GetRef(ctx, owner, repo, "refs/heads/"+branch)
 	if err != nil {
 		return "", fmt.Errorf("failed to get branch reference: %w", err)
 	}
@@ -68,7 +128,7 @@ func (gc *GithubClient) GetLatestCommitFromBranch(ctx context.Context, owner, re
 
 // AddCommitToBranch adds a commit to the specified branch.
 func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, branch, filePath, commitMessage string, fileContent []byte) error {
-	ref, _, err := gc.ghClient.Git.GetRef(ctx, owner, repo, "refs/heads/"+branch)
+	ref, _, err := gc.ghGitClient.GetRef(ctx, owner, repo, "refs/heads/"+branch)
 	if err != nil {
 		return err
 	}
@@ -77,7 +137,7 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Content:  github.String(string(fileContent)),
 		Encoding: github.String("utf-8"),
 	}
-	blobRes, _, err := gc.ghClient.Git.CreateBlob(ctx, owner, repo, blob)
+	blobRes, _, err := gc.ghGitClient.CreateBlob(ctx, owner, repo, blob)
 	if err != nil {
 		return err
 	}
@@ -88,16 +148,16 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Type: github.String("blob"),
 		SHA:  blobRes.SHA,
 	}
-	baseTree, _, err := gc.ghClient.Git.GetTree(ctx, owner, repo, *ref.Object.SHA, false)
+	baseTree, _, err := gc.ghGitClient.GetTree(ctx, owner, repo, *ref.Object.SHA, false)
 	if err != nil {
 		return err
 	}
-	tree, _, err := gc.ghClient.Git.CreateTree(ctx, owner, repo, *baseTree.SHA, []*github.TreeEntry{treeEntry})
+	tree, _, err := gc.ghGitClient.CreateTree(ctx, owner, repo, *baseTree.SHA, []*github.TreeEntry{treeEntry})
 	if err != nil {
 		return err
 	}
 
-	parentCommit, _, err := gc.ghClient.Git.GetCommit(ctx, owner, repo, *ref.Object.SHA)
+	parentCommit, _, err := gc.ghGitClient.GetCommit(ctx, owner, repo, *ref.Object.SHA)
 	if err != nil {
 		return err
 	}
@@ -106,13 +166,13 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Tree:    tree,
 		Parents: []*github.Commit{parentCommit},
 	}
-	newCommit, _, err := gc.ghClient.Git.CreateCommit(ctx, owner, repo, commit)
+	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit)
 	if err != nil {
 		return err
 	}
 
 	ref.Object.SHA = newCommit.SHA
-	_, _, err = gc.ghClient.Git.UpdateRef(ctx, owner, repo, ref, false)
+	_, _, err = gc.ghGitClient.UpdateRef(ctx, owner, repo, ref, false)
 	if err != nil {
 		return err
 	}
@@ -125,15 +185,46 @@ type CodeFilter struct {
 	FileRegexPattern string
 }
 
+func (gc *GithubClient) processEntry(entry *github.TreeEntry, codeFilter CodeFilter, context context.Context, owner, repo string, files map[string]string) error {
+	if entry.GetType() != "blob" {
+		return nil
+	}
+
+	re, err := regexp.Compile(codeFilter.FileRegexPattern)
+	if err != nil {
+		return fmt.Errorf("error compiling regex: %w", err)
+	}
+	if re.MatchString(entry.GetPath()) {
+		blob, resp, err := gc.ghGitClient.GetBlob(context, owner, repo, entry.GetSHA())
+		if err != nil {
+			return fmt.Errorf("error getting blob: %w", err)
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
+		}
+		content, err := base64.StdEncoding.DecodeString(blob.GetContent())
+		if err != nil {
+			return fmt.Errorf("error base64 decoding blob string: %w", err)
+		}
+		// if first line has substring DO NOT EDIT then skip
+		if IsDoNotEditFile(content) {
+			return nil
+		}
+
+		files[entry.GetPath()] = string(content)
+	}
+	return nil
+}
+
 // GetCommitCode gets the code from a commit.
 func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, commitSHA string, codeFilter CodeFilter) (map[string]string, error) {
-	commit, _, err := gc.ghClient.Git.GetCommit(context, owner, repo, commitSHA)
+	commit, _, err := gc.ghGitClient.GetCommit(context, owner, repo, commitSHA)
 	if err != nil {
 		return nil, err
 	}
 
 	treeSHA := commit.Tree.GetSHA()
-	tree, _, err := gc.ghClient.Git.GetTree(context, owner, repo, treeSHA, true)
+	tree, _, err := gc.ghGitClient.GetTree(context, owner, repo, treeSHA, true)
 	if err != nil {
 		return nil, fmt.Errorf("error getting git tree: %w", err)
 	}
@@ -145,35 +236,11 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 		if len(files) >= 5 {
 			break // Stop processing once we have 5 entries. Temporary fix for context length limit reached
 		}
-		if entry.GetType() != "blob" {
-			continue
-		}
-
-		re, err := regexp.Compile(codeFilter.FileRegexPattern)
+		err := gc.processEntry(entry, codeFilter, context, owner, repo, files)
 		if err != nil {
-			return nil, fmt.Errorf("error compiling regex: %w", err)
-		}
-		if re.MatchString(entry.GetPath()) {
-			blob, resp, err := gc.ghClient.Git.GetBlob(context, owner, repo, entry.GetSHA())
-			if err != nil {
-				return nil, fmt.Errorf("error getting blob: %w", err)
-			}
-			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-				return nil, fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
-			}
-			content, err := base64.StdEncoding.DecodeString(blob.GetContent())
-			if err != nil {
-				return nil, fmt.Errorf("error base64 decoding blob string: %w", err)
-			}
-			// if first line has substring DO NOT EDIT then skip
-			if IsDoNotEditFile(content) {
-				continue
-			}
-
-			files[entry.GetPath()] = string(content)
+			return nil, err
 		}
 	}
-
 	return files, nil
 }
 
@@ -208,7 +275,7 @@ func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner
 		Line: github.Int(line),
 	}
 
-	prComment, _, err := gc.ghClient.PullRequests.CreateComment(ctx, owner, repo, prNumber, comment)
+	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)
 	if err != nil {
 		return nil, fmt.Errorf("error creating comment: %w", err)
 	}
@@ -225,7 +292,7 @@ func (gc *GithubClient) CreatePullRequest(ctx context.Context, owner, repo, titl
 		Body:  github.String(body),
 	}
 
-	pullRequest, _, err := gc.ghClient.PullRequests.Create(ctx, owner, repo, pr)
+	pullRequest, _, err := gc.ghPullRequestClient.Create(ctx, owner, repo, pr)
 	if err != nil {
 		return nil, fmt.Errorf("error creating pull request: %w", err)
 	}
@@ -235,7 +302,7 @@ func (gc *GithubClient) CreatePullRequest(ctx context.Context, owner, repo, titl
 
 // MergePullRequest merges a pull request.
 func (gc *GithubClient) MergePullRequest(ctx context.Context, owner, repo string, prNumber int, commitMessage string) (*github.PullRequestMergeResult, error) {
-	mergeResult, _, err := gc.ghClient.PullRequests.Merge(ctx, owner, repo, prNumber, commitMessage, &github.PullRequestOptions{})
+	mergeResult, _, err := gc.ghPullRequestClient.Merge(ctx, owner, repo, prNumber, commitMessage, &github.PullRequestOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error merging pull request: %w", err)
 	}
@@ -245,7 +312,7 @@ func (gc *GithubClient) MergePullRequest(ctx context.Context, owner, repo string
 
 // ListPullRequests lists all pull requests in a repository.
 func (gc *GithubClient) ListPullRequests(ctx context.Context, owner, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, error) {
-	pullRequests, _, err := gc.ghClient.PullRequests.List(ctx, owner, repo, opts)
+	pullRequests, _, err := gc.ghPullRequestClient.List(ctx, owner, repo, opts)
 	if err != nil {
 		return nil, fmt.Errorf("error listing pull requests: %w", err)
 	}
@@ -255,7 +322,7 @@ func (gc *GithubClient) ListPullRequests(ctx context.Context, owner, repo string
 
 // GetPRCode gets the code from a pull request.
 func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions) (map[string]string, error) {
-	commitFiles, _, err := gc.ghClient.PullRequests.ListFiles(ctx, owner, repo, prNumber, opts)
+	commitFiles, _, err := gc.ghPullRequestClient.ListFiles(ctx, owner, repo, prNumber, opts)
 	if err != nil {
 		return nil, fmt.Errorf("error listing PR files: %w", err)
 	}
@@ -264,7 +331,7 @@ func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNum
 	for _, commitFile := range commitFiles {
 		// TODO(mgottlieb): Use custom regex pattern instead of hardcoding to .go
 		if strings.HasSuffix(commitFile.GetFilename(), ".go") {
-			blob, resp, err := gc.ghClient.Git.GetBlob(ctx, owner, repo, commitFile.GetSHA())
+			blob, resp, err := gc.ghGitClient.GetBlob(ctx, owner, repo, commitFile.GetSHA())
 			if err != nil {
 				return nil, fmt.Errorf("error getting blob: %w", err)
 			}
@@ -285,7 +352,7 @@ func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNum
 
 func (gc *GithubClient) GetPRDiff(ctx context.Context, owner, repo string, prNumber int) (string, error) {
 	diffOpts := &github.RawOptions{Type: github.Diff}
-	diff, _, err := gc.ghClient.PullRequests.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
+	diff, _, err := gc.ghPullRequestClient.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
 	if err != nil {
 		return "", fmt.Errorf("error retrieving PR diff: %w", err)
 	}
@@ -295,7 +362,7 @@ func (gc *GithubClient) GetPRDiff(ctx context.Context, owner, repo string, prNum
 
 func (gc *GithubClient) GetPRPatch(ctx context.Context, owner, repo string, prNumber int) (string, error) {
 	diffOpts := &github.RawOptions{Type: github.Patch}
-	diff, _, err := gc.ghClient.PullRequests.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
+	diff, _, err := gc.ghPullRequestClient.GetRaw(ctx, owner, repo, prNumber, *diffOpts)
 	if err != nil {
 		return "", fmt.Errorf("error retrieving PR diff: %w", err)
 	}

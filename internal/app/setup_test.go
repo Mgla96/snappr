@@ -1,6 +1,7 @@
 package app
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -8,19 +9,45 @@ import (
 )
 
 func TestSetup(t *testing.T) {
-	tests := []struct {
-		name string
-		want *App
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Setup(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Setup() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+
+	t.Run("test successful setup", func(t *testing.T) {
+		wantCfg := &config.Config{
+			Log: config.Log{
+				Level: 0,
+			},
+			Github: config.Github{
+				Token: "token",
+				Owner: "owner",
+				Repo:  "repo",
+			},
+			LLM: config.LLM{
+				Token:        "foobar",
+				Endpoint:     "http://localhost:8080",
+				DefaultModel: "gpt-4-turbo",
+			},
+		}
+
+		os.Setenv("PR_LOG_LEVEL", "0")
+		os.Setenv("PR_GITHUB_TOKEN", "token")
+		os.Setenv("PR_GITHUB_OWNER", "owner")
+		os.Setenv("PR_GITHUB_REPO", "repo")
+		os.Setenv("PR_LLM_TOKEN", "foobar")
+		os.Setenv("PR_LLM_ENDPOINT", "http://localhost:8080")
+
+		got := Setup()
+
+		if !reflect.DeepEqual(got.cfg, wantCfg) {
+			t.Errorf("SetupNoEnv() = %v, want %v", got.cfg, wantCfg)
+		}
+		if got.githubClient == nil {
+			t.Errorf("SetupNoEnv() = %v, want %v", got.githubClient, true)
+		}
+		if got.llmClient == nil {
+			t.Errorf("SetupNoEnv() = %v, want %v", got.llmClient, true)
+		}
+
+	})
+
 }
 
 func TestSetupNoEnv(t *testing.T) {
