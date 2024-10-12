@@ -390,7 +390,17 @@ func TestGithubClient_GetCommitCode(t *testing.T) {
 		want    map[string]string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error getting commit",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -725,6 +735,7 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					},
 				},
 			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -776,6 +787,17 @@ func TestGithubClient_GetPRDiff(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "successful getting raw",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					GetRawStub: func(context.Context, string, string, int, github.RawOptions) (string, *github.Response, error) {
+						return "diff", nil, nil
+					},
+				},
+			},
+			want: "diff",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -815,7 +837,29 @@ func TestGithubClient_GetPRPatch(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error getting raw",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					GetRawStub: func(context.Context, string, string, int, github.RawOptions) (string, *github.Response, error) {
+						return "", nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successful getting raw",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					GetRawStub: func(context.Context, string, string, int, github.RawOptions) (string, *github.Response, error) {
+						return "patch", nil, nil
+					},
+				},
+			},
+			wantErr: false,
+			want:    "patch",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
