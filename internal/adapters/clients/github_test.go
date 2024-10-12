@@ -435,7 +435,31 @@ func TestGithubClient_AddCommentToPullRequestReview(t *testing.T) {
 		want    *github.PullRequestComment
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error creating comment",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					CreateCommentStub: func(context.Context, string, string, int, *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successfully creating comment",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					CreateCommentStub: func(context.Context, string, string, int, *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error) {
+						return &github.PullRequestComment{
+							Body: github.String("commentBody"),
+						}, nil, nil
+					},
+				},
+			},
+			want:    &github.PullRequestComment{Body: github.String("commentBody")},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -478,7 +502,45 @@ func TestGithubClient_CreatePullRequest(t *testing.T) {
 		want    *github.PullRequest
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error creating pull request",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					CreateStub: func(context.Context, string, string, *github.NewPullRequest) (*github.PullRequest, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				ctx:   context.Background(),
+				title: "title",
+				head:  "head",
+				base:  "base",
+				body:  "body",
+			},
+			wantErr: true,
+		},
+		{
+			name: "successfully create pull request",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					CreateStub: func(context.Context, string, string, *github.NewPullRequest) (*github.PullRequest, *github.Response, error) {
+						return &github.PullRequest{
+							Title: github.String("title"),
+						}, nil, nil
+					},
+				},
+			},
+			args: args{
+				ctx:   context.Background(),
+				title: "title",
+				head:  "head",
+				base:  "base",
+				body:  "body",
+			},
+			wantErr: false,
+			want:    &github.PullRequest{Title: github.String("title")},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -519,7 +581,31 @@ func TestGithubClient_MergePullRequest(t *testing.T) {
 		want    *github.PullRequestMergeResult
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error merging pull request",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					MergeStub: func(context.Context, string, string, int, string, *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successfully merging pull request",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					MergeStub: func(context.Context, string, string, int, string, *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error) {
+						return &github.PullRequestMergeResult{
+							Merged: github.Bool(true),
+						}, nil, nil
+					},
+				},
+			},
+			wantErr: false,
+			want:    &github.PullRequestMergeResult{Merged: github.Bool(true)},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -559,7 +645,37 @@ func TestGithubClient_ListPullRequests(t *testing.T) {
 		want    []*github.PullRequest
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error listing pull requests",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListStub: func(context.Context, string, string, *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successfully listing pull requests",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListStub: func(context.Context, string, string, *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error) {
+						return []*github.PullRequest{
+							{
+								Title: github.String("title"),
+							},
+						}, nil, nil
+					},
+				},
+			},
+			wantErr: false,
+			want: []*github.PullRequest{
+				{
+					Title: github.String("title"),
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -600,7 +716,16 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 		want    map[string]string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error listing pull request files",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -640,7 +765,17 @@ func TestGithubClient_GetPRDiff(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "error getting raw",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					GetRawStub: func(context.Context, string, string, int, github.RawOptions) (string, *github.Response, error) {
+						return "", nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
