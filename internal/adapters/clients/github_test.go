@@ -71,7 +71,70 @@ func TestGithubClient_processEntry(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "entry type not blob",
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("tree"),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "regex path not matching",
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.txt"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "regex path matching and error getting blob",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
+			wantErr: true,
+		},
+		// {
+		// 	name: "get blob unexpected status",
+		// 	fields: fields{
+		// 		ghGitClient: &clientsfakes.FakeGitService{
+		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+		// 				resp := &github.Response{}
+		// 				resp.StatusCode = 500
+		// 				return nil, resp, fmt.Errorf("error")
+		// 			},
+		// 		},
+		// 	},
+		// 	args: args{
+		// 		entry: &github.TreeEntry{
+		// 			Type: github.String("blob"),
+		// 			Path: github.String("file.go"),
+		// 		},
+		// 		codeFilter: CodeFilter{
+		// 			FileRegexPattern: ".*\\.go$",
+		// 		},
+		// 	},
+		// 	wantErr: true,
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -395,6 +458,22 @@ func TestGithubClient_GetCommitCode(t *testing.T) {
 			fields: fields{
 				ghGitClient: &clientsfakes.FakeGitService{
 					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "error getting tree",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("sha"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
 						return nil, nil, fmt.Errorf("error")
 					},
 				},
