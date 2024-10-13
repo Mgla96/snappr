@@ -419,6 +419,218 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "error creating tree",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+					CreateBlobStub: func(context.Context, string, string, *github.Blob) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+							SHA: github.String("blobSHA"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							SHA: github.String("treeSHA"),
+						}, nil, nil
+					},
+					CreateTreeStub: func(context.Context, string, string, string, []*github.TreeEntry) (*github.Tree, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				branch:   "branch",
+				filePath: "filePath",
+			},
+			wantErr: true,
+		},
+		{
+			name: "error getting commit",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+					CreateBlobStub: func(context.Context, string, string, *github.Blob) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+							SHA: github.String("blobSHA"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							SHA: github.String("treeSHA"),
+						}, nil, nil
+					},
+					CreateTreeStub: func(context.Context, string, string, string, []*github.TreeEntry) (*github.Tree, *github.Response, error) {
+						return nil, nil, nil
+					},
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				branch:   "branch",
+				filePath: "filePath",
+			},
+			wantErr: true,
+		},
+		{
+			name: "error creating commit",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+					CreateBlobStub: func(context.Context, string, string, *github.Blob) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+							SHA: github.String("blobSHA"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							SHA: github.String("treeSHA"),
+						}, nil, nil
+					},
+					CreateTreeStub: func(context.Context, string, string, string, []*github.TreeEntry) (*github.Tree, *github.Response, error) {
+						return nil, nil, nil
+					},
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("commitSHA"),
+						}, nil, nil
+					},
+					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				branch:   "branch",
+				filePath: "filePath",
+			},
+			wantErr: true,
+		},
+		{
+			name: "error updating ref",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+					CreateBlobStub: func(context.Context, string, string, *github.Blob) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+							SHA: github.String("blobSHA"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							SHA: github.String("treeSHA"),
+						}, nil, nil
+					},
+					CreateTreeStub: func(context.Context, string, string, string, []*github.TreeEntry) (*github.Tree, *github.Response, error) {
+						return nil, nil, nil
+					},
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("commitSHA"),
+						}, nil, nil
+					},
+					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("commitSHA"),
+						}, nil, nil
+					},
+					UpdateRefStub: func(context.Context, string, string, *github.Reference, bool) (*github.Reference, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				branch:   "branch",
+				filePath: "filePath",
+			},
+			wantErr: true,
+		},
+		{
+			name: "successfully updating ref",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+					CreateBlobStub: func(context.Context, string, string, *github.Blob) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+							SHA: github.String("blobSHA"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							SHA: github.String("treeSHA"),
+						}, nil, nil
+					},
+					CreateTreeStub: func(context.Context, string, string, string, []*github.TreeEntry) (*github.Tree, *github.Response, error) {
+						return nil, nil, nil
+					},
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("commitSHA"),
+						}, nil, nil
+					},
+					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("commitSHA"),
+						}, nil, nil
+					},
+					UpdateRefStub: func(context.Context, string, string, *github.Reference, bool) (*github.Reference, *github.Response, error) {
+						return nil, nil, nil
+					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				branch:   "branch",
+				filePath: "filePath",
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
