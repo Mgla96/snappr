@@ -816,6 +816,93 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "no pull request files",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.txt"),
+							},
+						}, nil, nil
+					},
+				},
+			},
+			wantErr: false,
+			want:    map[string]string{},
+		},
+		{
+			name: "error getting blob",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return nil, nil, fmt.Errorf("error")
+					},
+				},
+			},
+			wantErr: true,
+		},
+		// {
+		// 	name: "unexpected status code getting blob",
+		// 	fields: fields{
+		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
+		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+		// 				return []*github.CommitFile{
+		// 					{
+		// 						Filename: github.String("foo.go"),
+		// 						SHA:      github.String("0d6a88a33a574143c94090cb211e410e6b091d4b"),
+		// 					},
+		// 				}, nil, nil
+		// 			},
+		// 		},
+		// 		ghGitClient: &clientsfakes.FakeGitService{
+		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+		// 				resp := &github.Response{}
+		// 				resp.StatusCode = 500
+		// 				return nil, resp, nil
+		// 			},
+		// 		},
+		// 	},
+		// 	wantErr: true,
+		// },
+		// {
+		// 	name: "successful getting blob",
+		// 	fields: fields{
+		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
+		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+		// 				return []*github.CommitFile{
+		// 					{
+		// 						Filename: github.String("foo.go"),
+		// 						SHA:      github.String("sha"),
+		// 					},
+		// 				}, nil, nil
+		// 			},
+		// 		},
+		// 		ghGitClient: &clientsfakes.FakeGitService{
+		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+		// 				return &github.Blob{
+		// 					Content: github.String("content"),
+		// 					SHA:     github.String("sha"),
+		// 				}, nil, nil
+		// 			},
+		// 		},
+		// 	},
+		// 	wantErr: false,
+		// 	want: map[string]string{
+		// 		"foo.go": "content",
+		// 	},
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -956,5 +1043,57 @@ func TestGithubClient_GetPRPatch(t *testing.T) {
 				t.Errorf("GithubClient.GetPRPatch() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestShuffle_IntSlice(t *testing.T) {
+	original := []int{1, 2, 3, 4, 5}
+	shuffled := make([]int, len(original))
+	copy(shuffled, original)
+
+	Shuffle(shuffled)
+
+	if len(original) != len(shuffled) {
+		t.Errorf("Expected the shuffled slice length to be %d, got %d", len(original), len(shuffled))
+	}
+
+	if reflect.DeepEqual(original, shuffled) {
+		t.Errorf("The slice was not shuffled, got %v", shuffled)
+	}
+
+	m := make(map[int]bool)
+	for _, v := range original {
+		m[v] = true
+	}
+	for _, v := range shuffled {
+		if !m[v] {
+			t.Errorf("Shuffled slice contains unexpected value %d", v)
+		}
+	}
+}
+
+func TestShuffle_StringSlice(t *testing.T) {
+	original := []string{"a", "b", "c", "d", "e"}
+	shuffled := make([]string, len(original))
+	copy(shuffled, original)
+
+	Shuffle(shuffled)
+
+	if len(original) != len(shuffled) {
+		t.Errorf("Expected the shuffled slice length to be %d, got %d", len(original), len(shuffled))
+	}
+
+	if reflect.DeepEqual(original, shuffled) {
+		t.Errorf("The slice was not shuffled, got %v", shuffled)
+	}
+
+	m := make(map[string]bool)
+	for _, v := range original {
+		m[v] = true
+	}
+	for _, v := range shuffled {
+		if !m[v] {
+			t.Errorf("Shuffled slice contains unexpected value %s", v)
+		}
 	}
 }
