@@ -285,27 +285,28 @@ func TestGithubClient_GetLatestCommitFromBranch(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "successful branch creation",
-		// 	fields: fields{
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
-		// 				return &github.Reference{
-		// 					Object: &github.GitObject{
-		// 						SHA: github.String("sha"),
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	args: args{
-		// 		ctx:    context.Background(),
-		// 		owner:  "owner",
-		// 		repo:   "repo",
-		// 		branch: "branch",
-		// 	},
-		// 	wantErr: false,
-		// },
+		{
+			name: "successful branch creation",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetRefStub: func(context.Context, string, string, string) (*github.Reference, *github.Response, error) {
+						return &github.Reference{
+							Object: &github.GitObject{
+								SHA: github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+			},
+			args: args{
+				ctx:    context.Background(),
+				owner:  "owner",
+				repo:   "repo",
+				branch: "branch",
+			},
+			wantErr: false,
+			want:    "sha",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
