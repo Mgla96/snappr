@@ -266,7 +266,7 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 // Returns:
 //   - The created PullRequestComment object.
 //   - An error if any occurred during the API request.
-func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error) {
+func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path, side string, startLine, line int) (*github.PullRequestComment, error) {
 	comment := &github.PullRequestComment{
 		// Text content of the comment
 		Body: github.String(commentBody),
@@ -280,6 +280,8 @@ func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner
 		StartLine: github.Int(startLine),
 		// Last line of range you want to comment on
 		Line: github.Int(line),
+		// Side of the diff to comment on. Can be "LEFT" or "RIGHT"
+		Side: github.String(side),
 	}
 
 	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)

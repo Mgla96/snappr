@@ -570,7 +570,7 @@ index 789abc..012def 100644
 					GetPRPatchStub: func(context.Context, string, string, int) (string, error) {
 						return rawDiff, nil
 					},
-					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error) {
+					AddCommentToPullRequestReviewStub: func(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path, side string, startLine, line int) (*github.PullRequestComment, error) {
 						return nil, fmt.Errorf("error adding comment to pull request review")
 					},
 				},
@@ -598,7 +598,7 @@ index 789abc..012def 100644
 					GetPRPatchStub: func(context.Context, string, string, int) (string, error) {
 						return rawDiff, nil
 					},
-					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error) {
+					AddCommentToPullRequestReviewStub: func(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path, side string, startLine, line int) (*github.PullRequestComment, error) {
 						return &github.PullRequestComment{
 							Body: github.String(""),
 						}, nil

@@ -37,7 +37,7 @@ type githubClient interface {
 	GetLatestCommitFromBranch(ctx context.Context, owner, repo, branch string) (string, error)
 	AddCommitToBranch(ctx context.Context, owner, repo, branch, filePath, commitMessage string, fileContent []byte) error
 	GetCommitCode(context context.Context, owner, repo, commitSHA string, codeFilter clients.CodeFilter) (map[string]string, error)
-	AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error)
+	AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path, side string, startLine, line int) (*github.PullRequestComment, error)
 	CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error)
 	MergePullRequest(ctx context.Context, owner, repo string, prNumber int, commitMessage string) (*github.PullRequestMergeResult, error)
 	ListPullRequests(ctx context.Context, owner, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, error)
@@ -84,6 +84,7 @@ type PRCommentInfo struct {
 	CommentBody string
 	StartLine   int
 	Line        int
+	Side        string
 }
 
 type App struct {
@@ -270,7 +271,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 
 	for filePath, prCommentInfoList := range prReviewMap {
 		for _, prCommentInfo := range prCommentInfoList {
-			prReviewComment, err := a.githubClient.AddCommentToPullRequestReview(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, prCommentInfo.CommentBody, commitSHA, filePath, prCommentInfo.StartLine, prCommentInfo.Line)
+			prReviewComment, err := a.githubClient.AddCommentToPullRequestReview(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, prCommentInfo.CommentBody, commitSHA, filePath, prCommentInfo.Side, prCommentInfo.StartLine, prCommentInfo.Line)
 			if err != nil {
 				a.log.Error().Err(err).Msgf("Failed to add comment for filepath: %s", filePath)
 			} else {
