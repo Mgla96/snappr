@@ -161,6 +161,14 @@ func TestNewCustomOpenAIClient(t *testing.T) {
 				apiType:   OPENAIAPI,
 			},
 		},
+		{
+			name: "Valid authToken and baseURL with OLLAMAAPI",
+			args: args{
+				authToken: "foobar",
+				baseURL:   "http://foobar.com",
+				apiType:   OLLAMAAPI,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
