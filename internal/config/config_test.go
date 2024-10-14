@@ -40,6 +40,7 @@ func TestNew(t *testing.T) {
 					Token:        "fake-llm-token",
 					DefaultModel: clients.GPT4_turbo,
 					Endpoint:     "https://foobar.llm",
+					APIType:      clients.OPENAIAPI,
 				},
 			},
 			wantErr: false,
