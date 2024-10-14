@@ -22,7 +22,7 @@ package clients provides the clients for the external services used by the appli
   - [func \(gc \*GithubClient\) CreatePullRequest\(ctx context.Context, owner, repo, title, head, base, body string\) \(\*github.PullRequest, error\)](<#GithubClient.CreatePullRequest>)
   - [func \(gc \*GithubClient\) GetCommitCode\(context context.Context, owner, repo, commitSHA string, codeFilter CodeFilter\) \(map\[string\]string, error\)](<#GithubClient.GetCommitCode>)
   - [func \(gc \*GithubClient\) GetLatestCommitFromBranch\(ctx context.Context, owner, repo, branch string\) \(string, error\)](<#GithubClient.GetLatestCommitFromBranch>)
-  - [func \(gc \*GithubClient\) GetPRCode\(ctx context.Context, owner, repo string, prNumber int, opts \*github.ListOptions\) \(map\[string\]string, error\)](<#GithubClient.GetPRCode>)
+  - [func \(gc \*GithubClient\) GetPRCode\(ctx context.Context, owner, repo string, prNumber int, opts \*github.ListOptions, codeFilter CodeFilter\) \(map\[string\]string, error\)](<#GithubClient.GetPRCode>)
   - [func \(gc \*GithubClient\) GetPRDiff\(ctx context.Context, owner, repo string, prNumber int\) \(string, error\)](<#GithubClient.GetPRDiff>)
   - [func \(gc \*GithubClient\) GetPRPatch\(ctx context.Context, owner, repo string, prNumber int\) \(string, error\)](<#GithubClient.GetPRPatch>)
   - [func \(gc \*GithubClient\) ListPullRequests\(ctx context.Context, owner, repo string, opts \*github.PullRequestListOptions\) \(\[\]\*github.PullRequest, error\)](<#GithubClient.ListPullRequests>)
@@ -166,7 +166,7 @@ GetLatestCommitFromBranch gets the latest commit SHA from a branch.
 ### func \(\*GithubClient\) GetPRCode
 
 ```go
-func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions) (map[string]string, error)
+func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions, codeFilter CodeFilter) (map[string]string, error)
 ```
 
 GetPRCode gets the code from a pull request.
