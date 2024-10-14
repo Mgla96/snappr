@@ -10,9 +10,11 @@ package clients provides the clients for the external services used by the appli
 
 ## Index
 
+- [Constants](<#constants>)
 - [func IsDoNotEditFile\(data \[\]byte\) bool](<#IsDoNotEditFile>)
 - [func ModelToContextWindow\(model ModelType\) int](<#ModelToContextWindow>)
 - [func Shuffle\(slice interface\{\}\)](<#Shuffle>)
+- [type APIType](<#APIType>)
 - [type CodeFilter](<#CodeFilter>)
 - [type GithubClient](<#GithubClient>)
   - [func NewGithubClient\(token string, logger zerolog.Logger\) \*GithubClient](<#NewGithubClient>)
@@ -28,11 +30,29 @@ package clients provides the clients for the external services used by the appli
   - [func \(gc \*GithubClient\) ListPullRequests\(ctx context.Context, owner, repo string, opts \*github.PullRequestListOptions\) \(\[\]\*github.PullRequest, error\)](<#GithubClient.ListPullRequests>)
   - [func \(gc \*GithubClient\) MergePullRequest\(ctx context.Context, owner, repo string, prNumber int, commitMessage string\) \(\*github.PullRequestMergeResult, error\)](<#GithubClient.MergePullRequest>)
 - [type ModelType](<#ModelType>)
+- [type OllamaClient](<#OllamaClient>)
+  - [func NewOllamaClient\(cfg openai.ClientConfig\) \*OllamaClient](<#NewOllamaClient>)
+  - [func \(c \*OllamaClient\) CreateChatCompletion\(ctx context.Context, request openai.ChatCompletionRequest\) \(response openai.ChatCompletionResponse, err error\)](<#OllamaClient.CreateChatCompletion>)
 - [type OpenAIClient](<#OpenAIClient>)
-  - [func NewCustomOpenAIClient\(authToken, baseURL string\) \*OpenAIClient](<#NewCustomOpenAIClient>)
+  - [func NewCustomOpenAIClient\(authToken, baseURL string, apiType APIType\) \*OpenAIClient](<#NewCustomOpenAIClient>)
   - [func NewOpenAIClient\(apiKey string\) \*OpenAIClient](<#NewOpenAIClient>)
   - [func \(oc \*OpenAIClient\) GenerateChatCompletion\(ctx context.Context, messages \[\]openai.ChatCompletionMessage, model ModelType\) \(string, error\)](<#OpenAIClient.GenerateChatCompletion>)
 
+
+## Constants
+
+<a name="GPT3_5Turbo0125"></a>
+
+```go
+const (
+    // GPT3_5Turbo0125 is the GPT-3.5-turbo-0125 model.
+    GPT3_5Turbo0125            ModelType = "gpt-3.5-turbo-0125"
+    GPT4_turbo                 ModelType = "gpt-4-turbo"
+    ErrNoChatCompletionChoices           = errors.New("no chat completion choices returned")
+    OLLAMAAPI                  APIType   = "ollama"
+    OPENAIAPI                  APIType   = "openai"
+)
+```
 
 <a name="IsDoNotEditFile"></a>
 ## func IsDoNotEditFile
@@ -60,6 +80,15 @@ func Shuffle(slice interface{})
 ```
 
 Shuffle shuffles a slice of any type
+
+<a name="APIType"></a>
+## type APIType
+
+
+
+```go
+type APIType string
+```
 
 <a name="CodeFilter"></a>
 ## type CodeFilter
@@ -216,15 +245,40 @@ MergePullRequest merges a pull request.
 type ModelType string
 ```
 
-<a name="GPT3_5Turbo0125"></a>
+<a name="OllamaClient"></a>
+## type OllamaClient
+
+
 
 ```go
-const (
-    // GPT3_5Turbo0125 is the GPT-3.5-turbo-0125 model.
-    GPT3_5Turbo0125            ModelType = "gpt-3.5-turbo-0125"
-    GPT4_turbo                 ModelType = "gpt-4-turbo"
-    ErrNoChatCompletionChoices           = errors.New("no chat completion choices returned")
-)
+type OllamaClient struct {
+    // contains filtered or unexported fields
+}
+```
+
+<a name="NewOllamaClient"></a>
+### func NewOllamaClient
+
+```go
+func NewOllamaClient(cfg openai.ClientConfig) *OllamaClient
+```
+
+
+
+<a name="OllamaClient.CreateChatCompletion"></a>
+### func \(\*OllamaClient\) CreateChatCompletion
+
+```go
+func (c *OllamaClient) CreateChatCompletion(ctx context.Context, request openai.ChatCompletionRequest) (response openai.ChatCompletionResponse, err error)
+```
+
+```
+curl http://localhost:11434/api/chat -d '{
+	  "model": "llama3.2",
+	  "messages": [
+	    { "role": "user", "content": "why is the sky blue?" }
+	  ]
+	}'
 ```
 
 <a name="OpenAIClient"></a>
@@ -242,7 +296,7 @@ type OpenAIClient struct {
 ### func NewCustomOpenAIClient
 
 ```go
-func NewCustomOpenAIClient(authToken, baseURL string) *OpenAIClient
+func NewCustomOpenAIClient(authToken, baseURL string, apiType APIType) *OpenAIClient
 ```
 
 
