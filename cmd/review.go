@@ -52,6 +52,7 @@ var reviewCmd = &cobra.Command{
 				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
 				APIType:      clients.APIType(llmAPI),
+				Retries:      llmRetries,
 			},
 		})
 		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, fileRegexPattern, printOnly)
