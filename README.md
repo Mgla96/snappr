@@ -118,6 +118,23 @@ for context on go PR reviews. Also example github workflow -->
   `--llmAPI ollama`
   `--llmModel llama3.2`
 
+  ```bash
+  snappr review --prNumber 29 --commitSHA ba3a8ef07cef75ee79dfdd26ad7a1be58f9fb3e7 --repository snappr --repositoryOwner Mgla96 --workflowName codeReview --fileRegexPattern "ollama.go$" -p --llmEndpoint http://localhost:11434 --llmAPI ollama --llmModel llama3.2
+  {
+    "internal/adapters/clients/ollama.go": [
+      {
+        "CommentBody": "Inconsistent handling of errors in the `CreateChatCompletion` function.",
+        "StartLine": 30,
+        "Line": 32
+      },
+      {
+        "CommentBody": "The `convertToOllamaRequest` function does not return any error when the request conversion fails.",
+        "StartLine": 102,
+        "Line": 104
+      }
+    ]
+  }
+  ```
 
 ### Snappy PR review
 
