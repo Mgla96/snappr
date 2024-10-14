@@ -39,8 +39,6 @@ func (c *OllamaClient) CreateChatCompletion(ctx context.Context, request openai.
 		return openai.ChatCompletionResponse{}, fmt.Errorf("failed to marshal request: %v", err)
 	}
 
-	fmt.Printf("request: %s\n", reqBody)
-
 	req, err := http.NewRequestWithContext(ctx, "POST", fmt.Sprintf("%s/api/chat", c.cfg.BaseURL), bytes.NewBuffer(reqBody))
 	if err != nil {
 		return openai.ChatCompletionResponse{}, fmt.Errorf("failed to create request: %v", err)
@@ -60,7 +58,6 @@ func (c *OllamaClient) CreateChatCompletion(ctx context.Context, request openai.
 	}
 
 	var ollamaResponse ollamaResponse
-	fmt.Printf("response: %s\n", respBody)
 
 	err = json.Unmarshal(respBody, &ollamaResponse)
 	if err != nil {

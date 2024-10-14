@@ -112,10 +112,11 @@ for context on go PR reviews. Also example github workflow -->
 
 1. Use the model with SnapPR
 
-  To use this model, you will need to specify 2 additional flags for `PRReview` or `PRCreation`.
+  To use this model, you will need to specify 3 additional flags for `PRReview` or `PRCreation`.
 
   `--llmEndpoint http://localhost:11434`
   `--llmAPI ollama`
+  `--llmModel llama3.2`
 
 
 ### Snappy PR review
