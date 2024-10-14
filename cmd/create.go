@@ -41,6 +41,7 @@ var createCmd = &cobra.Command{
 				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
 				APIType:      clients.APIType(llmAPI),
+				Retries:      llmRetries,
 			},
 		})
 		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, fileRegexPattern, printOnly)

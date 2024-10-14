@@ -28,6 +28,7 @@ type LLM struct {
 	DefaultModel clients.ModelType `default:"gpt-4-turbo"`
 	Endpoint     string
 	APIType      clients.APIType `default:"openai"`
+	Retries      int             `default:"3"`
 }
 
 // Config contains all config parameters for the service

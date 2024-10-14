@@ -26,6 +26,7 @@ func TestSetup(t *testing.T) {
 				Endpoint:     "http://localhost:8080",
 				DefaultModel: "gpt-4-turbo",
 				APIType:      "openai",
+				Retries:      3,
 			},
 		}
 

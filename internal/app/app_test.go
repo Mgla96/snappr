@@ -66,6 +66,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
@@ -90,6 +93,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
@@ -113,6 +119,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -145,6 +154,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
@@ -175,6 +187,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -208,6 +223,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
@@ -238,6 +256,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -272,6 +293,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -309,6 +333,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -349,6 +376,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -536,6 +566,9 @@ index 789abc..012def 100644
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
@@ -561,6 +594,9 @@ index 789abc..012def 100644
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
@@ -585,6 +621,9 @@ index 789abc..012def 100644
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -615,6 +654,9 @@ index 789abc..012def 100644
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -651,6 +693,9 @@ index 789abc..012def 100644
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
@@ -685,6 +730,9 @@ index 789abc..012def 100644
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -722,6 +770,9 @@ index 789abc..012def 100644
 							},
 						},
 					},
+					LLM: config.LLM{
+						Retries: 3,
+					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
@@ -756,6 +807,9 @@ index 789abc..012def 100644
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
@@ -794,6 +848,9 @@ index 789abc..012def 100644
 								Steps: []config.PromptWorkflowStep{},
 							},
 						},
+					},
+					LLM: config.LLM{
+						Retries: 3,
 					},
 				},
 				githubClient: &appfakes.FakeGithubClient{
