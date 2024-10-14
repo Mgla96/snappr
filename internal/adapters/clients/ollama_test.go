@@ -23,7 +23,7 @@ func TestOllamaClient_CreateChatCompletion(t *testing.T) {
 		wantResponse openai.ChatCompletionResponse
 		wantErr      bool
 	}{
-		// TODO: Add test cases.
+		// Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -37,6 +37,38 @@ func TestOllamaClient_CreateChatCompletion(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotResponse, tt.wantResponse) {
 				t.Errorf("OllamaClient.CreateChatCompletion() = %v, want %v", gotResponse, tt.wantResponse)
+			}
+		})
+	}
+}
+
+func TestNewOllamaClient(t *testing.T) {
+	type args struct {
+		cfg openai.ClientConfig
+	}
+	tests := []struct {
+		name string
+		args args
+		want *OllamaClient
+	}{
+		{
+			name: "create new ollama client",
+			args: args{
+				cfg: openai.ClientConfig{
+					BaseURL: "http://localhost:11434",
+				},
+			},
+			want: &OllamaClient{
+				cfg: openai.ClientConfig{
+					BaseURL: "http://localhost:11434",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewOllamaClient(tt.args.cfg); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewOllamaClient() = %v, want %v", got, tt.want)
 			}
 		})
 	}
