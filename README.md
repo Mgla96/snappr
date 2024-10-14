@@ -91,7 +91,7 @@ Additional knowledge sources can be added to the `knowledgeSources` section foun
 https://go.dev/wiki/CodeReviewComments
 for context on go PR reviews. Also example github workflow -->
 
-### Using Llama3.1 hosted with ollama
+### Using Llama3.2 hosted with ollama
 
 1. Follow the Ollama download instructions: https://ollama.com/download
 
