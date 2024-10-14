@@ -1234,11 +1234,12 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 		log                 zerolog.Logger
 	}
 	type args struct {
-		ctx      context.Context
-		owner    string
-		repo     string
-		prNumber int
-		opts     *github.ListOptions
+		ctx        context.Context
+		owner      string
+		repo       string
+		prNumber   int
+		opts       *github.ListOptions
+		codeFilter CodeFilter
 	}
 	tests := []struct {
 		name    string
@@ -1256,6 +1257,11 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
 			wantErr: true,
 		},
 		{
@@ -1271,8 +1277,33 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
 			wantErr: false,
 			want:    map[string]string{},
+		},
+		{
+			name: "error complining code filter regex",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+							},
+						}, nil, nil
+					},
+				},
+			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: "[",
+				},
+			},
+			wantErr: true,
 		},
 		{
 			name: "error getting blob",
@@ -1291,6 +1322,15 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
 						return nil, nil, fmt.Errorf("error")
 					},
+				},
+			},
+			args: args{
+				ctx:      context.Background(),
+				owner:    "owner",
+				repo:     "repo",
+				prNumber: 1,
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
 				},
 			},
 			wantErr: true,
@@ -1317,6 +1357,11 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 						}
 						return nil, resp, nil
 					},
+				},
+			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
 				},
 			},
 			wantErr: true,
@@ -1347,6 +1392,11 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
 			wantErr: true,
 		},
 		{
@@ -1375,6 +1425,11 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
 			wantErr: false,
 			want: map[string]string{
 				"foo.go": "foo\n",
@@ -1388,7 +1443,7 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 				ghPullRequestClient: tt.fields.ghPullRequestClient,
 				log:                 tt.fields.log,
 			}
-			got, err := gc.GetPRCode(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.opts)
+			got, err := gc.GetPRCode(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.opts, tt.args.codeFilter)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GithubClient.GetPRCode() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -115,7 +115,7 @@ type FakeGithubClient struct {
 		result1 string
 		result2 error
 	}
-	GetPRCodeStub        func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error)
+	GetPRCodeStub        func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error)
 	getPRCodeMutex       sync.RWMutex
 	getPRCodeArgsForCall []struct {
 		arg1 context.Context
@@ -123,6 +123,7 @@ type FakeGithubClient struct {
 		arg3 string
 		arg4 int
 		arg5 *github.ListOptions
+		arg6 clients.CodeFilter
 	}
 	getPRCodeReturns struct {
 		result1 map[string]string
@@ -599,7 +600,7 @@ func (fake *FakeGithubClient) GetLatestCommitFromBranchReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
-func (fake *FakeGithubClient) GetPRCode(arg1 context.Context, arg2 string, arg3 string, arg4 int, arg5 *github.ListOptions) (map[string]string, error) {
+func (fake *FakeGithubClient) GetPRCode(arg1 context.Context, arg2 string, arg3 string, arg4 int, arg5 *github.ListOptions, arg6 clients.CodeFilter) (map[string]string, error) {
 	fake.getPRCodeMutex.Lock()
 	ret, specificReturn := fake.getPRCodeReturnsOnCall[len(fake.getPRCodeArgsForCall)]
 	fake.getPRCodeArgsForCall = append(fake.getPRCodeArgsForCall, struct {
@@ -608,13 +609,14 @@ func (fake *FakeGithubClient) GetPRCode(arg1 context.Context, arg2 string, arg3 
 		arg3 string
 		arg4 int
 		arg5 *github.ListOptions
-	}{arg1, arg2, arg3, arg4, arg5})
+		arg6 clients.CodeFilter
+	}{arg1, arg2, arg3, arg4, arg5, arg6})
 	stub := fake.GetPRCodeStub
 	fakeReturns := fake.getPRCodeReturns
-	fake.recordInvocation("GetPRCode", []interface{}{arg1, arg2, arg3, arg4, arg5})
+	fake.recordInvocation("GetPRCode", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6})
 	fake.getPRCodeMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5)
+		return stub(arg1, arg2, arg3, arg4, arg5, arg6)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -628,17 +630,17 @@ func (fake *FakeGithubClient) GetPRCodeCallCount() int {
 	return len(fake.getPRCodeArgsForCall)
 }
 
-func (fake *FakeGithubClient) GetPRCodeCalls(stub func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error)) {
+func (fake *FakeGithubClient) GetPRCodeCalls(stub func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error)) {
 	fake.getPRCodeMutex.Lock()
 	defer fake.getPRCodeMutex.Unlock()
 	fake.GetPRCodeStub = stub
 }
 
-func (fake *FakeGithubClient) GetPRCodeArgsForCall(i int) (context.Context, string, string, int, *github.ListOptions) {
+func (fake *FakeGithubClient) GetPRCodeArgsForCall(i int) (context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) {
 	fake.getPRCodeMutex.RLock()
 	defer fake.getPRCodeMutex.RUnlock()
 	argsForCall := fake.getPRCodeArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6
 }
 
 func (fake *FakeGithubClient) GetPRCodeReturns(result1 map[string]string, result2 error) {

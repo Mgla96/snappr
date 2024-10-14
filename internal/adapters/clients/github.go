@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"reflect"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/google/go-github/v39/github"
@@ -185,6 +184,21 @@ type CodeFilter struct {
 	FileRegexPattern string
 }
 
+func (gc *GithubClient) fetchAndDecodeBlob(ctx context.Context, owner, repo, sha string) (string, error) {
+	blob, resp, err := gc.ghGitClient.GetBlob(ctx, owner, repo, sha)
+	if err != nil {
+		return "", fmt.Errorf("error getting blob: %w", err)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
+	}
+	content, err := base64.StdEncoding.DecodeString(blob.GetContent())
+	if err != nil {
+		return "", fmt.Errorf("error base64 decoding blob string: %w", err)
+	}
+	return string(content), nil
+}
+
 func (gc *GithubClient) processEntry(entry *github.TreeEntry, codeFilter CodeFilter, context context.Context, owner, repo string, files map[string]string) error {
 	if entry.GetType() != "blob" {
 		return nil
@@ -195,19 +209,12 @@ func (gc *GithubClient) processEntry(entry *github.TreeEntry, codeFilter CodeFil
 		return fmt.Errorf("error compiling regex: %w", err)
 	}
 	if re.MatchString(entry.GetPath()) {
-		blob, resp, err := gc.ghGitClient.GetBlob(context, owner, repo, entry.GetSHA())
+		content, err := gc.fetchAndDecodeBlob(context, owner, repo, entry.GetSHA())
 		if err != nil {
-			return fmt.Errorf("error getting blob: %w", err)
-		}
-		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-			return fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
-		}
-		content, err := base64.StdEncoding.DecodeString(blob.GetContent())
-		if err != nil {
-			return fmt.Errorf("error base64 decoding blob string: %w", err)
+			return fmt.Errorf("error fetching and decoding blob: %w", err)
 		}
 		// if first line has substring DO NOT EDIT then skip
-		if IsDoNotEditFile(content) {
+		if IsDoNotEditFile([]byte(content)) {
 			return nil
 		}
 
@@ -321,28 +328,24 @@ func (gc *GithubClient) ListPullRequests(ctx context.Context, owner, repo string
 }
 
 // GetPRCode gets the code from a pull request.
-func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions) (map[string]string, error) {
+func (gc *GithubClient) GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions, codeFilter CodeFilter) (map[string]string, error) {
 	commitFiles, _, err := gc.ghPullRequestClient.ListFiles(ctx, owner, repo, prNumber, opts)
 	if err != nil {
 		return nil, fmt.Errorf("error listing PR files: %w", err)
 	}
 
+	re, err := regexp.Compile(codeFilter.FileRegexPattern)
+	if err != nil {
+		return nil, fmt.Errorf("error compiling regex: %w", err)
+	}
+
 	files := make(map[string]string)
 	for _, commitFile := range commitFiles {
-		// TODO(mgottlieb): Use custom regex pattern instead of hardcoding to .go
-		if strings.HasSuffix(commitFile.GetFilename(), ".go") {
-			blob, resp, err := gc.ghGitClient.GetBlob(ctx, owner, repo, commitFile.GetSHA())
+		if re.MatchString(commitFile.GetFilename()) {
+			content, err := gc.fetchAndDecodeBlob(ctx, owner, repo, commitFile.GetSHA())
 			if err != nil {
-				return nil, fmt.Errorf("error getting blob: %w", err)
+				return nil, fmt.Errorf("error fetching and decoding blob: %w", err)
 			}
-			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-				return nil, fmt.Errorf("unexpected status code getting blob: %d", resp.StatusCode)
-			}
-			content, err := base64.StdEncoding.DecodeString(blob.GetContent())
-			if err != nil {
-				return nil, fmt.Errorf("error base64 decoding blob string: %w", err)
-			}
-
 			files[commitFile.GetFilename()] = string(content)
 		}
 	}
