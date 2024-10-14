@@ -1295,56 +1295,91 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "unexpected status code getting blob",
-		// 	fields: fields{
-		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
-		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
-		// 				return []*github.CommitFile{
-		// 					{
-		// 						Filename: github.String("foo.go"),
-		// 						SHA:      github.String("0d6a88a33a574143c94090cb211e410e6b091d4b"),
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
-		// 				resp := &github.Response{}
-		// 				resp.StatusCode = 500
-		// 				return nil, resp, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: true,
-		// },
-		// {
-		// 	name: "successful getting blob",
-		// 	fields: fields{
-		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
-		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
-		// 				return []*github.CommitFile{
-		// 					{
-		// 						Filename: github.String("foo.go"),
-		// 						SHA:      github.String("sha"),
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
-		// 				return &github.Blob{
-		// 					Content: github.String("content"),
-		// 					SHA:     github.String("sha"),
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: false,
-		// 	want: map[string]string{
-		// 		"foo.go": "content",
-		// 	},
-		// },
+		{
+			name: "unexpected status code getting blob",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("0d6a88a33a574143c94090cb211e410e6b091d4b"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 500,
+							},
+						}
+						return nil, resp, nil
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "error decoding blob content",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg"),
+								SHA:     github.String("sha"),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successful getting blob",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg=="),
+								SHA:     github.String("sha"),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			wantErr: false,
+			want: map[string]string{
+				"foo.go": "foo\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
