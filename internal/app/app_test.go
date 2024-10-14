@@ -57,31 +57,64 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 		{
 			name: "Error getting commit code",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, fmt.Errorf("error getting commit code")
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Empty commit code",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, nil
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Error generating chat completion",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -95,12 +128,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Empty response from LLM",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -114,12 +159,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Print only",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -134,14 +191,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				printOnly: true,
+				printOnly:    true,
+				workflowName: "foo",
 			},
 			wantErr: false,
 		},
 		{
 			name: "Error unmarshal LLM Response to PrCreation struct",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -155,12 +222,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Error creating Github Branch",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -177,12 +256,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Error adding commit to branch",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -202,12 +293,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "Error creating pull request",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -230,12 +333,24 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 					},
 				},
 			},
+			args: args{
+				workflowName: "foo",
+			},
 			wantErr: true,
 		},
 		{
 			name: "created pull request",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetCommitCodeStub: func(context.Context, string, string, string, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -259,6 +374,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 						return string(prCreationBytes), nil
 					},
 				},
+			},
+			args: args{
+				workflowName: "foo",
 			},
 			wantErr: false,
 		},
@@ -409,7 +527,16 @@ index 789abc..012def 100644
 		{
 			name: "Error getting PR code",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, fmt.Errorf("error getting PR code")
@@ -418,13 +545,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Empty PR code",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, nil
@@ -433,13 +570,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Error getting PR Patch",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -453,13 +600,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Empty prompt workflow and failure to generate chat completion",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -478,13 +635,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Empty response from GenerateChatCompletion",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -503,13 +670,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "print only",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -529,13 +706,23 @@ index 789abc..012def 100644
 			args: args{
 				printOnly:        true,
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: false,
 		},
 		{
 			name: "error unmarshalling PR Review Map",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -554,13 +741,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: true,
 		},
 		{
 			name: "error adding comment to pull request review",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -582,13 +779,23 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: false,
 		},
 		{
 			name: "successful PR review",
 			fields: fields{
-				cfg: &config.Config{},
+				cfg: &config.Config{
+					Input: config.InputConfig{
+						PromptWorkflows: []config.PromptWorkflow{
+							{
+								Name:  "foo",
+								Steps: []config.PromptWorkflowStep{},
+							},
+						},
+					},
+				},
 				githubClient: &appfakes.FakeGithubClient{
 					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
@@ -612,6 +819,7 @@ index 789abc..012def 100644
 			},
 			args: args{
 				fileRegexPattern: ".*\\.go$",
+				workflowName:     "foo",
 			},
 			wantErr: false,
 		},

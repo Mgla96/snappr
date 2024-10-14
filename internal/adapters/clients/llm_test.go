@@ -147,6 +147,7 @@ func TestNewCustomOpenAIClient(t *testing.T) {
 	type args struct {
 		authToken string
 		baseURL   string
+		apiType   APIType
 	}
 	tests := []struct {
 		name string
@@ -157,12 +158,21 @@ func TestNewCustomOpenAIClient(t *testing.T) {
 			args: args{
 				authToken: "foobar",
 				baseURL:   "http://foobar.com",
+				apiType:   OPENAIAPI,
+			},
+		},
+		{
+			name: "Valid authToken and baseURL with OLLAMAAPI",
+			args: args{
+				authToken: "foobar",
+				baseURL:   "http://foobar.com",
+				apiType:   OLLAMAAPI,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewCustomOpenAIClient(tt.args.authToken, tt.args.baseURL)
+			got := NewCustomOpenAIClient(tt.args.authToken, tt.args.baseURL, tt.args.apiType)
 
 			if got.aiClient == nil {
 				t.Errorf("NewCustomOpenAIClient() aiClient = nil, want not nil")

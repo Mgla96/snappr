@@ -19,7 +19,7 @@ Package app provides the main business logic for the snappr application.
 - [func RetrieveKnowledge\(sourceName string, knowledgeSources \[\]KnowledgeSource\) \(string, error\)](<#RetrieveKnowledge>)
 - [type App](<#App>)
   - [func New\(cfg \*config.Config, githubClient githubClient, llmClient llmClient, logger zerolog.Logger\) \*App](<#New>)
-  - [func Setup\(\) \*App](<#Setup>)
+  - [func Setup\(\) \(\*App, error\)](<#Setup>)
   - [func SetupNoEnv\(cfg \*config.Config\) \*App](<#SetupNoEnv>)
   - [func \(a \*App\) ExecuteCreatePR\(ctx context.Context, commitSHA, branch, workflowName, fileRegexPattern string, printOnly bool\) error](<#App.ExecuteCreatePR>)
   - [func \(a \*App\) ExecutePRReview\(ctx context.Context, commitSHA string, prNumber int, workflowName, fileRegexPattern string, printOnly bool\) error](<#App.ExecutePRReview>)
@@ -136,7 +136,7 @@ New creates a new instance of the App.
 ### func Setup
 
 ```go
-func Setup() *App
+func Setup() (*App, error)
 ```
 
 Setup sets up the application utilizing environment variables.
