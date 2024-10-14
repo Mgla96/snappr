@@ -30,11 +30,7 @@ type OllamaClient struct {
 	}'
 */
 func (c *OllamaClient) CreateChatCompletion(ctx context.Context, request openai.ChatCompletionRequest) (response openai.ChatCompletionResponse, err error) {
-	ollamaReq, err := convertToOllamaRequest(request)
-	if err != nil {
-		return openai.ChatCompletionResponse{}, fmt.Errorf("failed to convert request: %v", err)
-	}
-	reqBody, err := json.Marshal(ollamaReq)
+	reqBody, err := json.Marshal(convertToOllamaRequest(request))
 	if err != nil {
 		return openai.ChatCompletionResponse{}, fmt.Errorf("failed to marshal request: %v", err)
 	}
@@ -90,7 +86,7 @@ type ollamaResponse struct {
 	EvalDuration       float64       `json:"eval_duration"`
 }
 
-func convertToOllamaRequest(request openai.ChatCompletionRequest) (ollamaRequest, error) {
+func convertToOllamaRequest(request openai.ChatCompletionRequest) ollamaRequest {
 	ollamaRequest := ollamaRequest{
 		Model:    request.Model,
 		Messages: []ollamaMessage{},
@@ -106,7 +102,7 @@ func convertToOllamaRequest(request openai.ChatCompletionRequest) (ollamaRequest
 		ollamaRequest.Messages = append(ollamaRequest.Messages, ollamaMessage)
 	}
 
-	return ollamaRequest, nil
+	return ollamaRequest
 }
 
 func convertOllamaRespToOpenAIResponse(response ollamaResponse) openai.ChatCompletionResponse {

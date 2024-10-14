@@ -79,10 +79,9 @@ func Test_convertToOllamaRequest(t *testing.T) {
 		request openai.ChatCompletionRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    ollamaRequest
-		wantErr bool
+		name string
+		args args
+		want ollamaRequest
 	}{
 		{
 			name: "successful",
@@ -112,11 +111,7 @@ func Test_convertToOllamaRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := convertToOllamaRequest(tt.args.request)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("convertToOllamaRequest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := convertToOllamaRequest(tt.args.request)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("convertToOllamaRequest() = %v, want %v", got, tt.want)
 			}
