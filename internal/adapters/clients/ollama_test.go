@@ -73,3 +73,96 @@ func TestNewOllamaClient(t *testing.T) {
 		})
 	}
 }
+
+func Test_convertToOllamaRequest(t *testing.T) {
+	type args struct {
+		request openai.ChatCompletionRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    ollamaRequest
+		wantErr bool
+	}{
+		{
+			name: "successful",
+			args: args{
+				request: openai.ChatCompletionRequest{
+					Model: "llama3.2",
+					Messages: []openai.ChatCompletionMessage{
+						{
+							Role:    "user",
+							Content: "why is the sky blue?",
+						},
+					},
+					Stream: false,
+				},
+			},
+			want: ollamaRequest{
+				Model: "llama3.2",
+				Messages: []ollamaMessage{
+					{
+						Role:    "user",
+						Content: "why is the sky blue?",
+					},
+				},
+				Stream: false,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := convertToOllamaRequest(tt.args.request)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("convertToOllamaRequest() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertToOllamaRequest() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_convertOllamaRespToOpenAIResponse(t *testing.T) {
+	type args struct {
+		response ollamaResponse
+	}
+	tests := []struct {
+		name string
+		args args
+		want openai.ChatCompletionResponse
+	}{
+		{
+			name: "successful",
+			args: args{
+				response: ollamaResponse{
+					Model:     "llama3.2",
+					CreatedAt: "2022-01-01T00:00:00Z",
+					Message: ollamaMessage{
+						Role:    "user",
+						Content: "foobar",
+					},
+				},
+			},
+			want: openai.ChatCompletionResponse{
+				Model: "llama3.2",
+				Choices: []openai.ChatCompletionChoice{
+					{
+						Message: openai.ChatCompletionMessage{
+							Role:    "user",
+							Content: "foobar",
+						},
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := convertOllamaRespToOpenAIResponse(tt.args.response); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertOllamaRespToOpenAIResponse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
