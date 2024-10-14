@@ -52,7 +52,7 @@ var reviewCmd = &cobra.Command{
 				Endpoint:     llmEndpoint,
 			},
 		})
-		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, printOnly)
+		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, fileRegexPattern, printOnly)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Error executing PR review")
 		}
@@ -69,6 +69,7 @@ func init() {
 	reviewCmd.Flags().StringVar(&llmModel, "llmModel", "gpt-4-turbo", "Model to use for LLM")
 	reviewCmd.Flags().IntVar(&prNumber, "prNumber", 0, "Pull Request number to review (required)")
 	reviewCmd.Flags().BoolVarP(&printOnly, "printOnly", "p", false, "Print the review only")
+	reviewCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR review")
 	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	reviewCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 

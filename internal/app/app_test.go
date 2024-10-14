@@ -393,11 +393,12 @@ index 789abc..012def 100644
 		log          zerolog.Logger
 	}
 	type args struct {
-		ctx          context.Context
-		commitSHA    string
-		prNumber     int
-		workflowName string
-		printOnly    bool
+		ctx              context.Context
+		commitSHA        string
+		prNumber         int
+		workflowName     string
+		fileRegexPattern string
+		printOnly        bool
 	}
 	tests := []struct {
 		name    string
@@ -410,10 +411,13 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, fmt.Errorf("error getting PR code")
 					},
 				},
+			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
 			},
 			wantErr: true,
 		},
@@ -422,10 +426,13 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{}, nil
 					},
 				},
+			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
 			},
 			wantErr: true,
 		},
@@ -434,7 +441,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -444,6 +451,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: true,
 		},
 		{
@@ -451,7 +461,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -466,6 +476,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: true,
 		},
 		{
@@ -473,7 +486,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -488,6 +501,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: true,
 		},
 		{
@@ -495,7 +511,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -511,7 +527,8 @@ index 789abc..012def 100644
 				},
 			},
 			args: args{
-				printOnly: true,
+				printOnly:        true,
+				fileRegexPattern: ".*\\.go$",
 			},
 			wantErr: false,
 		},
@@ -520,7 +537,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -535,6 +552,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: true,
 		},
 		{
@@ -542,7 +562,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -560,6 +580,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: false,
 		},
 		{
@@ -567,7 +590,7 @@ index 789abc..012def 100644
 			fields: fields{
 				cfg: &config.Config{},
 				githubClient: &appfakes.FakeGithubClient{
-					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions) (map[string]string, error) {
+					GetPRCodeStub: func(context.Context, string, string, int, *github.ListOptions, clients.CodeFilter) (map[string]string, error) {
 						return map[string]string{
 							"file1.go": "code1",
 						}, nil
@@ -587,6 +610,9 @@ index 789abc..012def 100644
 					},
 				},
 			},
+			args: args{
+				fileRegexPattern: ".*\\.go$",
+			},
 			wantErr: false,
 		},
 	}
@@ -598,7 +624,7 @@ index 789abc..012def 100644
 				llmClient:    tt.fields.llmClient,
 				log:          tt.fields.log,
 			}
-			if err := a.ExecutePRReview(tt.args.ctx, tt.args.commitSHA, tt.args.prNumber, tt.args.workflowName, tt.args.printOnly); (err != nil) != tt.wantErr {
+			if err := a.ExecutePRReview(tt.args.ctx, tt.args.commitSHA, tt.args.prNumber, tt.args.workflowName, tt.args.fileRegexPattern, tt.args.printOnly); (err != nil) != tt.wantErr {
 				t.Errorf("App.ExecutePRReview() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

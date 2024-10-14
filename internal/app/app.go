@@ -41,7 +41,7 @@ type githubClient interface {
 	CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error)
 	MergePullRequest(ctx context.Context, owner, repo string, prNumber int, commitMessage string) (*github.PullRequestMergeResult, error)
 	ListPullRequests(ctx context.Context, owner, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, error)
-	GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions) (map[string]string, error)
+	GetPRCode(ctx context.Context, owner, repo string, prNumber int, opts *github.ListOptions, codeFilter clients.CodeFilter) (map[string]string, error)
 	GetPRPatch(ctx context.Context, owner, repo string, prNumber int) (string, error)
 }
 
@@ -188,9 +188,11 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 }
 
 // ExecutePRReview executes the PR review workflow.
-func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber int, workflowName string, printOnly bool) error {
+func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber int, workflowName, fileRegexPattern string, printOnly bool) error {
 	// Get code on GitHub from commit
-	code, err := a.githubClient.GetPRCode(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, nil)
+	code, err := a.githubClient.GetPRCode(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, nil, clients.CodeFilter{
+		FileRegexPattern: fileRegexPattern,
+	})
 	if err != nil {
 		return fmt.Errorf("error getting commit code: %w", err)
 	}
