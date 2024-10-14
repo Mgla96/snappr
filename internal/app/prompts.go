@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	promptBaseSystemPrompt = `You will only return JSON responses and will act as an API.`
+	promptBaseSystemPrompt = `You will only receive and return JSON responses and will act as an API.`
 	promptCreatePR         = `As an expert Go software engineer, refactor Go code snippets from JSON (map[string]string, where key=file path, value=code snippet) to enhance performance, readability, and best practices adherence.
 - **Return Format:** Provide code review feedback in a JSON that can unmarshal to the PRCreation spec below.
 type PRCreation struct {
@@ -71,6 +71,10 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 				Name: "createPR",
 				Steps: []config.PromptWorkflowStep{
 					{
+						Prompt:      promptBaseSystemPrompt,
+						InputSource: "text",
+					},
+					{
 						Prompt:      promptCreatePR,
 						InputSource: "text",
 					},
@@ -79,6 +83,10 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 			{
 				Name: "codeReview",
 				Steps: []config.PromptWorkflowStep{
+					{
+						Prompt:      promptBaseSystemPrompt,
+						InputSource: "text",
+					},
 					{
 						Prompt:      promptCodeReview,
 						InputSource: "text",
