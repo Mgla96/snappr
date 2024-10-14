@@ -27,6 +27,7 @@ type LLM struct {
 	Token        string            `required:"true"`
 	DefaultModel clients.ModelType `default:"gpt-4-turbo"`
 	Endpoint     string
+	APIType      clients.APIType `default:"openai"`
 }
 
 // Config contains all config parameters for the service
