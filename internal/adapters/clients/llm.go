@@ -84,6 +84,7 @@ func (oc *OpenAIClient) GenerateChatCompletion(ctx context.Context, messages []o
 	req := openai.ChatCompletionRequest{
 		Model:    string(model),
 		Messages: messages,
+		Stream:   false,
 	}
 
 	resp, err := oc.aiClient.CreateChatCompletion(ctx, req)
