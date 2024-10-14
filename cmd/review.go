@@ -38,6 +38,7 @@ var reviewCmd = &cobra.Command{
 		}
 
 		application := app.SetupNoEnv(&config.Config{
+			Input: inputConfig,
 			Log: config.Log{
 				Level: zerolog.InfoLevel,
 			},

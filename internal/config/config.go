@@ -32,9 +32,10 @@ type LLM struct {
 
 // Config contains all config parameters for the service
 type Config struct {
-	Log    Log    `required:"true"`
-	Github Github `required:"true"`
-	LLM    LLM    `required:"true"`
+	Log    Log         `required:"true"`
+	Github Github      `required:"true"`
+	LLM    LLM         `required:"true"`
+	Input  InputConfig `required:"true"`
 }
 
 // New returns the parsed config from the environment.
