@@ -64,6 +64,7 @@ func init() {
 	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 	createCmd.Flags().StringVar(&llmAPI, "llmAPI", "openai", "Type of LLM API to use (ollama or openai)")
+	createCmd.Flags().StringVar(&workflowName, "workflowName", "", "Prompt workflow to use (required)")
 
 	err := createCmd.MarkFlagRequired("repository")
 	if err != nil {
@@ -84,9 +85,9 @@ func init() {
 		logger.Err(err).Msg("Error marking branch as required")
 	}
 
-	createCmd.Flags().StringVar(&workflowName, "workflowName", "", "Prompt workflow to use (required)")
 	err = createCmd.MarkFlagRequired("workflowName")
 	if err != nil {
 		logger.Err(err).Msg("Error marking workflowName as required")
 	}
+
 }
