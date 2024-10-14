@@ -871,39 +871,57 @@ func TestGithubClient_GetCommitCode(t *testing.T) {
 			wantErr: false,
 			want:    map[string]string{},
 		},
-		// {
-		// 	name: "successful",
-		// 	fields: fields{
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
-		// 				return &github.Commit{
-		// 					SHA: github.String("sha"),
-		// 				}, nil, nil
-		// 			},
-		// 			GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
-		// 				return &github.Tree{
-		// 					Entries: []*github.TreeEntry{
-		// 						{
-		// 							SHA:  github.String("foo"),
-		// 							Type: github.String("blob"),
-		// 							Path: github.String("foo.go"),
-		// 						},
-		// 						{
-		// 							SHA:  github.String("bar"),
-		// 							Type: github.String("blob"),
-		// 							Path: github.String("bar.go"),
-		// 						},
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: false,
-		// 	want: map[string]string{
-		// 		"foo.go": "foo\n",
-		// 		"bar.go": "bar\n",
-		// 	},
-		// },
+		{
+			name: "successful",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("sha"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							Entries: []*github.TreeEntry{
+								{
+									SHA:  github.String("foo"),
+									Type: github.String("blob"),
+									Path: github.String("foo.go"),
+								},
+								{
+									SHA:  github.String("bar"),
+									Type: github.String("blob"),
+									Path: github.String("bar.go"),
+								},
+							},
+						}, nil, nil
+					},
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg=="),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			args: args{
+				context:   context.Background(),
+				owner:     "owner",
+				repo:      "repo",
+				commitSHA: "sha",
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
+			wantErr: false,
+			want: map[string]string{
+				"foo.go": "foo\n",
+				"bar.go": "foo\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
