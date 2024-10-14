@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write # This is required to upload the binaries
+
 jobs:
   build:
     name: Build and Release
