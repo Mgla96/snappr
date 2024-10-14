@@ -33,6 +33,7 @@ func TestSetup(t *testing.T) {
 		os.Setenv("PR_GITHUB_REPO", "repo")
 		os.Setenv("PR_LLM_TOKEN", "foobar")
 		os.Setenv("PR_LLM_ENDPOINT", "http://localhost:8080")
+		os.Setenv("PR_INPUT_PROMPT_WORKFLOWS", "foo")
 
 		got, err := Setup()
 		if err != nil {
