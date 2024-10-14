@@ -19,8 +19,10 @@
   <a href="https://codecov.io/gh/mgla96/snappr">
     <img src="https://codecov.io/gh/mgla96/snappr/branch/main/graph/badge.svg" alt="Coverage Status">
   </a>
-
----
+  <a href="https://pkg.go.dev/github.com/mgla96/snappr">
+    <img src="https://pkg.go.dev/badge/github.com/mgla96/snappr.svg" alt="Go Reference">
+  </a>
+</p>
 
 ## Table of Contents
 - [Installation](#installation)
