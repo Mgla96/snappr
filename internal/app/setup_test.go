@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Mgla96/snappr/internal/config"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestSetup(t *testing.T) {
@@ -24,6 +25,7 @@ func TestSetup(t *testing.T) {
 				Token:        "foobar",
 				Endpoint:     "http://localhost:8080",
 				DefaultModel: "gpt-4-turbo",
+				APIType:      "openai",
 			},
 		}
 
@@ -41,7 +43,7 @@ func TestSetup(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(got.cfg, wantCfg) {
-			t.Errorf("SetupNoEnv() = %v, want %v", got.cfg, wantCfg)
+			t.Errorf("SetupNoEnv() = %v, want %v, diff: %s", got.cfg, wantCfg, cmp.Diff(got.cfg, wantCfg))
 		}
 		if got.githubClient == nil {
 			t.Errorf("SetupNoEnv() = %v, want %v", got.githubClient, true)
