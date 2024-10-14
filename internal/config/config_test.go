@@ -26,6 +26,8 @@ func TestNew(t *testing.T) {
 				"PR_LLM_TOKEN":         "fake-llm-token",
 				"PR_LLM_DEFAULT_MODEL": string(clients.GPT4_turbo),
 				"PR_LLM_ENDPOINT":      "https://foobar.llm",
+				"PR_LLM_API_TYPE":      string(clients.OPENAIAPI),
+				"PR_LLM_RETRIES":       "3",
 			},
 			want: &Config{
 				Log: Log{
@@ -41,6 +43,7 @@ func TestNew(t *testing.T) {
 					DefaultModel: clients.GPT4_turbo,
 					Endpoint:     "https://foobar.llm",
 					APIType:      clients.OPENAIAPI,
+					Retries:      3,
 				},
 			},
 			wantErr: false,
