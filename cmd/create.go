@@ -7,14 +7,22 @@ import (
 	"github.com/Mgla96/snappr/internal/adapters/clients"
 	"github.com/Mgla96/snappr/internal/app"
 	"github.com/Mgla96/snappr/internal/config"
-	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
-var branch string
-var fileRegexPattern string
-var llmRetries int
-var llmModel string
+var (
+	branch          string
+	fileRegexPattern string
+	llmRetries      int
+	llmModel        string
+	repository      string
+	repositoryOwner string
+	commitSHA       string
+	printOnly       bool
+	llmEndpoint     string
+	workflowName    string
+)
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
@@ -49,9 +57,9 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 	rootCmd.AddCommand(createCmd)
 
+	// Flags initialization
 	createCmd.Flags().StringVar(&repository, "repository", "", "Github repository to review such as snappr (required)")
 	createCmd.Flags().StringVar(&repositoryOwner, "repositoryOwner", "", "The account owner of the repository. The name is not case sensitive. (required)")
 	createCmd.Flags().StringVar(&commitSHA, "commitSHA", "", "Commit SHA to create PR from (required)")
@@ -62,28 +70,10 @@ func init() {
 	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 
-	err := createCmd.MarkFlagRequired("repository")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking repository as required")
-	}
-
-	err = createCmd.MarkFlagRequired("repositoryOwner")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking repositoryOwner as required")
-	}
-
-	err = createCmd.MarkFlagRequired("commitSHA")
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Error marking commitSHA as required")
-	}
-	err = createCmd.MarkFlagRequired("branch")
-	if err != nil {
-		logger.Err(err).Msg("Error marking branch as required")
-	}
-
-	createCmd.Flags().StringVar(&workflowName, "workflowName", "", "Prompt workflow to use (required)")
-	err = createCmd.MarkFlagRequired("workflowName")
-	if err != nil {
-		logger.Err(err).Msg("Error marking workflowName as required")
-	}
+	// Marking flags as required
+	createCmd.MarkFlagRequired("repository")
+	createCmd.MarkFlagRequired("repositoryOwner")
+	createCmd.MarkFlagRequired("commitSHA")
+	createCmd.MarkFlagRequired("branch")
+	createCmd.MarkFlagRequired("workflowName")
 }
