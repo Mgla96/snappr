@@ -46,9 +46,10 @@ Config contains all config parameters for the service
 
 ```go
 type Config struct {
-    Log    Log    `required:"true"`
-    Github Github `required:"true"`
-    LLM    LLM    `required:"true"`
+    Log    Log         `required:"true"`
+    Github Github      `required:"true"`
+    LLM    LLM         `required:"true"`
+    Input  InputConfig `required:"true"`
 }
 ```
 
@@ -129,6 +130,8 @@ type LLM struct {
     Token        string            `required:"true"`
     DefaultModel clients.ModelType `default:"gpt-4-turbo"`
     Endpoint     string
+    APIType      clients.APIType `default:"openai"`
+    Retries      int             `default:"3"`
 }
 ```
 
