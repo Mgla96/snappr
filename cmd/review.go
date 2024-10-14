@@ -50,6 +50,7 @@ var reviewCmd = &cobra.Command{
 				Token:        os.Getenv("LLM_TOKEN"),
 				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
+				APIType:      clients.APIType(llmAPI),
 			},
 		})
 		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, fileRegexPattern, printOnly)
@@ -72,6 +73,7 @@ func init() {
 	reviewCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR review")
 	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	reviewCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
+	reviewCmd.Flags().StringVar(&llmAPI, "llmAPI", "openai", "Type of LLM API to use (ollama or openai)")
 
 	err := reviewCmd.MarkFlagRequired("repository")
 	if err != nil {

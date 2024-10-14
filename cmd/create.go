@@ -15,6 +15,7 @@ var branch string
 var fileRegexPattern string
 var llmRetries int
 var llmModel string
+var llmAPI string
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
@@ -39,6 +40,7 @@ var createCmd = &cobra.Command{
 				Token:        os.Getenv("LLM_TOKEN"),
 				DefaultModel: clients.ModelType(llmModel),
 				Endpoint:     llmEndpoint,
+				APIType:      clients.APIType(llmAPI),
 			},
 		})
 		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, fileRegexPattern, printOnly)
@@ -61,6 +63,7 @@ func init() {
 	createCmd.Flags().StringVar(&fileRegexPattern, "fileRegexPattern", `.*\.go$`, "Define a regex pattern to filter files to use as context for PR creation")
 	createCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
+	createCmd.Flags().StringVar(&llmAPI, "llmAPI", "openai", "Type of LLM API to use (ollama or openai)")
 
 	err := createCmd.MarkFlagRequired("repository")
 	if err != nil {
