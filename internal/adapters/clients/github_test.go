@@ -258,6 +258,39 @@ func TestGithubClient_processEntry(t *testing.T) {
 			wantErr:   true,
 			wantFiles: map[string]string{},
 		},
+		{
+			name: "successful process entry",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 200,
+							},
+						}
+						blob := &github.Blob{
+							Content: github.String("Zm9vYmFyCg=="),
+						}
+
+						return blob, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+				files: map[string]string{},
+			},
+			wantErr: false,
+			wantFiles: map[string]string{
+				"file.go": "foobar\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
