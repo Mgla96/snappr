@@ -92,31 +92,31 @@ https://go.dev/wiki/CodeReviewComments
 for context on go PR reviews. Also example github workflow -->
 
 <!-- TODO: example of how to use with ollama and llama -->
-<!-- 
 ### Using Llama3.1 hosted with ollama
 
 1. Follow the Ollama download instructions: https://ollama.com/download
 
-1. Run llama 3.1
+1. Run llama 3.2
 
     ```bash
-    ollama run llama3.1
+    ollama run llama3.2
     ```
 
 1. Verify that you can access the model
 
     ```bash
     curl http://localhost:11434/api/generate -d '{
-      "model": "llama3.1",
+      "model": "llama3.2",
       "prompt": ""
     }'
     ```
 
 1. Use the model with SnapPR
 
-  ```bash
-  
-  ``` -->
+  To use this model, you will need to specify 2 additional flags for `PRReview` or `PRCreation`.
+
+  `--llmEndpoint http://localhost:11434`
+  `--llmAPI ollama`
 
 
 ### Snappy PR review
