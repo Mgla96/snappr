@@ -130,12 +130,10 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 	a.log.Debug().Msgf("Code to be reviewed: %s", codeJson)
 
 	// Parse code and feed to LLM with prompt
-	promptWorkflow := GetWorkflowByName(workflowName, workflows)
+	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
 	var messages []openai.ChatCompletionMessage
 	if promptWorkflow == nil {
-		messages = []openai.ChatCompletionMessage{
-			{Role: string(system), Content: promptCreatePR},
-		}
+		return fmt.Errorf("workflow not found: %s", workflowName)
 	} else {
 		for _, step := range promptWorkflow.Steps {
 			messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
@@ -235,13 +233,10 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 		return fmt.Errorf("error marshaling JSON: %w", err)
 	}
 
-	promptWorkflow := GetWorkflowByName(workflowName, workflows)
+	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
 	var messages []openai.ChatCompletionMessage
 	if promptWorkflow == nil {
-		// Parse code and feed to LLM with prompt
-		messages = []openai.ChatCompletionMessage{
-			{Role: string(system), Content: promptCodeReview},
-		}
+		return fmt.Errorf("workflow not found: %s", workflowName)
 	} else {
 		for _, step := range promptWorkflow.Steps {
 			messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})

@@ -37,7 +37,7 @@ func SetupNoEnv(cfg *config.Config) *App {
 
 	var llmClient *clients.OpenAIClient
 	if cfg.LLM.Endpoint != "" {
-		llmClient = clients.NewCustomOpenAIClient(cfg.LLM.Token, cfg.LLM.Endpoint)
+		llmClient = clients.NewCustomOpenAIClient(cfg.LLM.Token, cfg.LLM.Endpoint, cfg.LLM.APIType)
 	} else {
 		llmClient = clients.NewOpenAIClient(cfg.LLM.Token)
 	}

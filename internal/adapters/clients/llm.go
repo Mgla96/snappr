@@ -8,12 +8,15 @@ import (
 )
 
 type ModelType string
+type APIType string
 
 const (
 	// GPT3_5Turbo0125 is the GPT-3.5-turbo-0125 model.
 	GPT3_5Turbo0125            ModelType = "gpt-3.5-turbo-0125"
 	GPT4_turbo                 ModelType = "gpt-4-turbo"
 	ErrNoChatCompletionChoices           = errors.New("no chat completion choices returned")
+	OLLAMAAPI                  APIType   = "ollama"
+	OPENAIAPI                  APIType   = "openai"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
@@ -41,12 +44,20 @@ func ModelToContextWindow(model ModelType) int {
 	}
 }
 
-func NewCustomOpenAIClient(authToken, baseURL string) *OpenAIClient {
+func NewCustomOpenAIClient(authToken, baseURL string, apiType APIType) *OpenAIClient {
 	defaultConfig := openai.DefaultConfig(authToken)
 	defaultConfig.BaseURL = baseURL
-	client := openai.NewClientWithConfig(defaultConfig)
-	return &OpenAIClient{
-		aiClient: client,
+	switch apiType {
+	case OLLAMAAPI:
+		client := NewOllamaClient(defaultConfig)
+		return &OpenAIClient{
+			aiClient: client,
+		}
+	default:
+		client := openai.NewClientWithConfig(defaultConfig)
+		return &OpenAIClient{
+			aiClient: client,
+		}
 	}
 }
 
@@ -73,6 +84,7 @@ func (oc *OpenAIClient) GenerateChatCompletion(ctx context.Context, messages []o
 	req := openai.ChatCompletionRequest{
 		Model:    string(model),
 		Messages: messages,
+		Stream:   false,
 	}
 
 	resp, err := oc.aiClient.CreateChatCompletion(ctx, req)
