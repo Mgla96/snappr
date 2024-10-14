@@ -107,6 +107,18 @@ func New(
 	return app
 }
 
+func (a *App) chatCompletionWithRetry(ctx context.Context, messages []openai.ChatCompletionMessage, model clients.ModelType, retries int) (string, error) {
+	var response string
+	var err error
+	for i := 0; i < retries; i++ {
+		response, err = a.llmClient.GenerateChatCompletion(ctx, messages, model)
+		if err == nil {
+			break
+		}
+	}
+	return response, err
+}
+
 // ExecuteCreatePR executes the create PR workflow.
 func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowName, fileRegexPattern string, printOnly bool) error {
 	// Get code on GitHub from commit
@@ -142,7 +154,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 	}
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(codeJson)})
 
-	response, err := a.llmClient.GenerateChatCompletion(ctx, messages, a.cfg.LLM.DefaultModel)
+	response, err := a.chatCompletionWithRetry(ctx, messages, a.cfg.LLM.DefaultModel, a.cfg.LLM.Retries)
 	if err != nil {
 		return fmt.Errorf("error generating chat completion: %w", err)
 	}
@@ -245,7 +257,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 	}
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(res)})
 
-	response, err := a.llmClient.GenerateChatCompletion(ctx, messages, a.cfg.LLM.DefaultModel)
+	response, err := a.chatCompletionWithRetry(ctx, messages, a.cfg.LLM.DefaultModel, a.cfg.LLM.Retries)
 	if err != nil {
 		return fmt.Errorf("error generating chat completion: %w", err)
 	}
