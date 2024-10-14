@@ -34,7 +34,10 @@ func TestSetup(t *testing.T) {
 		os.Setenv("PR_LLM_TOKEN", "foobar")
 		os.Setenv("PR_LLM_ENDPOINT", "http://localhost:8080")
 
-		got := Setup()
+		got, err := Setup()
+		if err != nil {
+			t.Errorf("Setup() error = %v, want %v", err, nil)
+		}
 
 		if !reflect.DeepEqual(got.cfg, wantCfg) {
 			t.Errorf("SetupNoEnv() = %v, want %v", got.cfg, wantCfg)
@@ -46,6 +49,23 @@ func TestSetup(t *testing.T) {
 			t.Errorf("SetupNoEnv() = %v, want %v", got.llmClient, true)
 		}
 
+	})
+
+	t.Run("test unsuccessful setup", func(t *testing.T) {
+		os.Unsetenv("PR_LOG_LEVEL")
+		os.Unsetenv("PR_GITHUB_TOKEN")
+		os.Unsetenv("PR_GITHUB_OWNER")
+		os.Unsetenv("PR_GITHUB_REPO")
+		os.Unsetenv("PR_LLM_TOKEN")
+		os.Unsetenv("PR_LLM_ENDPOINT")
+
+		got, err := Setup()
+		if err == nil {
+			t.Error("Setup() error nil but wanted error", err)
+		}
+		if got != nil {
+			t.Errorf("Setup() = %v, want %v", got.cfg, nil)
+		}
 	})
 
 }

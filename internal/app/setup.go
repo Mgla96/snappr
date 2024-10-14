@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -11,19 +12,19 @@ import (
 )
 
 // Setup sets up the application utilizing environment variables.
-func Setup() *App {
+func Setup() (*App, error) {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
 
 	cfg, err := config.New()
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("error setting up config: %w", err)
 	}
 
 	zerolog.SetGlobalLevel(cfg.Log.Level)
 	ghClient := clients.NewGithubClient(cfg.Github.Token, log.Logger)
 	llmClient := clients.NewOpenAIClient(cfg.LLM.Token)
 
-	return New(cfg, ghClient, llmClient, log.Logger)
+	return New(cfg, ghClient, llmClient, log.Logger), nil
 }
 
 // SetupNoEnv sets up the application from a config struct instead of utilizing environment variables.
