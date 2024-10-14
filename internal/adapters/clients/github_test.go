@@ -3,6 +3,8 @@ package clients
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 	"reflect"
 	"testing"
 
@@ -66,10 +68,11 @@ func TestGithubClient_processEntry(t *testing.T) {
 		files      map[string]string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name      string
+		fields    fields
+		args      args
+		wantErr   bool
+		wantFiles map[string]string
 	}{
 		{
 			name: "entry type not blob",
@@ -77,8 +80,25 @@ func TestGithubClient_processEntry(t *testing.T) {
 				entry: &github.TreeEntry{
 					Type: github.String("tree"),
 				},
+				files: map[string]string{},
 			},
-			wantErr: false,
+			wantErr:   false,
+			wantFiles: map[string]string{},
+		},
+		{
+			name: "bad regex",
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.txt"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: "[",
+				},
+				files: map[string]string{},
+			},
+			wantErr:   true,
+			wantFiles: map[string]string{},
 		},
 		{
 			name: "regex path not matching",
@@ -90,8 +110,10 @@ func TestGithubClient_processEntry(t *testing.T) {
 				codeFilter: CodeFilter{
 					FileRegexPattern: ".*\\.go$",
 				},
+				files: map[string]string{},
 			},
-			wantErr: false,
+			wantErr:   false,
+			wantFiles: map[string]string{},
 		},
 		{
 			name: "regex path matching and error getting blob",
@@ -110,31 +132,165 @@ func TestGithubClient_processEntry(t *testing.T) {
 				codeFilter: CodeFilter{
 					FileRegexPattern: ".*\\.go$",
 				},
+				files: map[string]string{},
 			},
-			wantErr: true,
+			wantErr:   true,
+			wantFiles: map[string]string{},
 		},
-		// {
-		// 	name: "get blob unexpected status",
-		// 	fields: fields{
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
-		// 				resp := &github.Response{}
-		// 				resp.StatusCode = 500
-		// 				return nil, resp, fmt.Errorf("error")
-		// 			},
-		// 		},
-		// 	},
-		// 	args: args{
-		// 		entry: &github.TreeEntry{
-		// 			Type: github.String("blob"),
-		// 			Path: github.String("file.go"),
-		// 		},
-		// 		codeFilter: CodeFilter{
-		// 			FileRegexPattern: ".*\\.go$",
-		// 		},
-		// 	},
-		// 	wantErr: true,
-		// },
+		{
+			name: "get blob unexpected status",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 500,
+							},
+						}
+
+						return nil, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+				files: map[string]string{},
+			},
+			wantErr:   true,
+			wantFiles: map[string]string{},
+		},
+		{
+			name: "error decoding string",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 200,
+							},
+						}
+						blob := &github.Blob{
+							Content: github.String("invalid base64"),
+						}
+
+						return blob, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+				files: map[string]string{},
+			},
+			wantErr:   true,
+			wantFiles: map[string]string{},
+		},
+		{
+			name: "is do not edit file",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 200,
+							},
+						}
+						blob := &github.Blob{
+							Content: github.String("RE8gTk9UIEVESVQK"),
+						}
+
+						return blob, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+				files: map[string]string{},
+			},
+			wantErr:   false,
+			wantFiles: map[string]string{},
+		},
+		{
+			name: "error processing entry",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 200,
+							},
+						}
+						blob := &github.Blob{
+							Content: github.String("Zm9vYmFyCg=="),
+						}
+
+						return blob, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: "[",
+				},
+				files: map[string]string{},
+			},
+			wantErr:   true,
+			wantFiles: map[string]string{},
+		},
+		{
+			name: "successful process entry",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 200,
+							},
+						}
+						blob := &github.Blob{
+							Content: github.String("Zm9vYmFyCg=="),
+						}
+
+						return blob, resp, nil
+					},
+				},
+			},
+			args: args{
+				entry: &github.TreeEntry{
+					Type: github.String("blob"),
+					Path: github.String("file.go"),
+				},
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+				files: map[string]string{},
+			},
+			wantErr: false,
+			wantFiles: map[string]string{
+				"file.go": "foobar\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -145,6 +301,9 @@ func TestGithubClient_processEntry(t *testing.T) {
 			}
 			if err := gc.processEntry(tt.args.entry, tt.args.codeFilter, tt.args.context, tt.args.owner, tt.args.repo, tt.args.files); (err != nil) != tt.wantErr {
 				t.Errorf("GithubClient.processEntry() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(tt.args.files, tt.wantFiles) {
+				t.Errorf("GithubClient.processEntry() = %v, want %v", tt.args.files, tt.wantFiles)
 			}
 		})
 	}
@@ -693,6 +852,76 @@ func TestGithubClient_GetCommitCode(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "empty files",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("sha"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							Entries: []*github.TreeEntry{},
+						}, nil, nil
+					},
+				},
+			},
+			wantErr: false,
+			want:    map[string]string{},
+		},
+		{
+			name: "successful",
+			fields: fields{
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetCommitStub: func(context.Context, string, string, string) (*github.Commit, *github.Response, error) {
+						return &github.Commit{
+							SHA: github.String("sha"),
+						}, nil, nil
+					},
+					GetTreeStub: func(context.Context, string, string, string, bool) (*github.Tree, *github.Response, error) {
+						return &github.Tree{
+							Entries: []*github.TreeEntry{
+								{
+									SHA:  github.String("foo"),
+									Type: github.String("blob"),
+									Path: github.String("foo.go"),
+								},
+								{
+									SHA:  github.String("bar"),
+									Type: github.String("blob"),
+									Path: github.String("bar.go"),
+								},
+							},
+						}, nil, nil
+					},
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg=="),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			args: args{
+				context:   context.Background(),
+				owner:     "owner",
+				repo:      "repo",
+				commitSHA: "sha",
+				codeFilter: CodeFilter{
+					FileRegexPattern: ".*\\.go$",
+				},
+			},
+			wantErr: false,
+			want: map[string]string{
+				"foo.go": "foo\n",
+				"bar.go": "foo\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1066,56 +1295,91 @@ func TestGithubClient_GetPRCode(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		// {
-		// 	name: "unexpected status code getting blob",
-		// 	fields: fields{
-		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
-		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
-		// 				return []*github.CommitFile{
-		// 					{
-		// 						Filename: github.String("foo.go"),
-		// 						SHA:      github.String("0d6a88a33a574143c94090cb211e410e6b091d4b"),
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
-		// 				resp := &github.Response{}
-		// 				resp.StatusCode = 500
-		// 				return nil, resp, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: true,
-		// },
-		// {
-		// 	name: "successful getting blob",
-		// 	fields: fields{
-		// 		ghPullRequestClient: &clientsfakes.FakePullRequestService{
-		// 			ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
-		// 				return []*github.CommitFile{
-		// 					{
-		// 						Filename: github.String("foo.go"),
-		// 						SHA:      github.String("sha"),
-		// 					},
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 		ghGitClient: &clientsfakes.FakeGitService{
-		// 			GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
-		// 				return &github.Blob{
-		// 					Content: github.String("content"),
-		// 					SHA:     github.String("sha"),
-		// 				}, nil, nil
-		// 			},
-		// 		},
-		// 	},
-		// 	wantErr: false,
-		// 	want: map[string]string{
-		// 		"foo.go": "content",
-		// 	},
-		// },
+		{
+			name: "unexpected status code getting blob",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("0d6a88a33a574143c94090cb211e410e6b091d4b"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						resp := &github.Response{
+							Response: &http.Response{
+								StatusCode: 500,
+							},
+						}
+						return nil, resp, nil
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "error decoding blob content",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg"),
+								SHA:     github.String("sha"),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "successful getting blob",
+			fields: fields{
+				ghPullRequestClient: &clientsfakes.FakePullRequestService{
+					ListFilesStub: func(context.Context, string, string, int, *github.ListOptions) ([]*github.CommitFile, *github.Response, error) {
+						return []*github.CommitFile{
+							{
+								Filename: github.String("foo.go"),
+								SHA:      github.String("sha"),
+							},
+						}, nil, nil
+					},
+				},
+				ghGitClient: &clientsfakes.FakeGitService{
+					GetBlobStub: func(context.Context, string, string, string) (*github.Blob, *github.Response, error) {
+						return &github.Blob{
+								Content: github.String("Zm9vCg=="),
+								SHA:     github.String("sha"),
+							}, &github.Response{
+								Response: &http.Response{
+									StatusCode: 200,
+								},
+							}, nil
+					},
+				},
+			},
+			wantErr: false,
+			want: map[string]string{
+				"foo.go": "foo\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1308,5 +1572,39 @@ func TestShuffle_StringSlice(t *testing.T) {
 		if !m[v] {
 			t.Errorf("Shuffled slice contains unexpected value %s", v)
 		}
+	}
+}
+
+func TestNewGithubClient(t *testing.T) {
+	type args struct {
+		token  string
+		logger zerolog.Logger
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "create github client",
+			args: args{
+				token:  "foobar",
+				logger: zerolog.New(os.Stdout),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewGithubClient(tt.args.token, tt.args.logger)
+			if got == nil {
+				t.Errorf("NewGithubClient() = nil")
+				return
+			}
+			if got.ghGitClient == nil {
+				t.Errorf("NewGithubClient() ghGitClient = nil")
+			}
+			if got.ghPullRequestClient == nil {
+				t.Errorf("NewGithubClient() ghPullRequestClient = nil")
+			}
+		})
 	}
 }
