@@ -10,28 +10,8 @@ import (
 )
 
 const (
-	promptBaseSystemPrompt = `You will only communicate with JSON and will act as an API. 
-	Your input is JSON and will only be able to unmarshal to map[string]string, where key=file path, value=code snippet.
-	The only other input you could receive is of format where key=message and value=an additional prompt for you.
-
-	Your output in it's entirety must unmarshal to the PRCreation Go spec below:
-	type PRCreation struct {
-		// Title of the pull request
-		Title string ` + "`json:\"title\"`" + `
-		// Body of the pull request
-		Body string ` + "`json:\"body\"`" + `
-		// UpdatedFiles is a list of files that have been updated in the pull request
-		UpdatedFiles []PRCreationFile ` + "`json:\"updated_files\"`" + `
-	}
-	type PRCreationFile struct {
-		// Path is the file path of the file that has been updated
-		Path string ` + "`json:\"path\"`" + `
-		// FullContent is the full content of the file that has been updated.
-		FullContent string ` + "`json:\"full_content\"`" + `
-		CommitMessage string ` + "`json:\"commit_message\"`" + `
-	}
-	`
-	promptCreatePR = `As an expert Go software engineer, refactor Go code snippets from JSON (map[string]string, where key=file path, value=code snippet) to enhance performance, readability, and best practices adherence.
+	promptBaseSystemPrompt = `You will only receive and respond with JSON and will act as an API.`
+	promptCreatePR         = `As an expert Go software engineer, refactor Go code snippets from JSON (map[string]string, where key=file path, value=code snippet) to enhance performance, readability, and best practices adherence.
 - **Return Format:** Provide code review feedback in a JSON that can unmarshal to the PRCreation spec below.
 type PRCreation struct {
 	// Title of the pull request
@@ -90,6 +70,10 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 				Name: "createPR",
 				Steps: []config.PromptWorkflowStep{
 					{
+						Prompt:      promptBaseSystemPrompt,
+						InputSource: "text",
+					},
+					{
 						Prompt:      promptCreatePR,
 						InputSource: "text",
 					},
@@ -98,6 +82,10 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 			{
 				Name: "codeReview",
 				Steps: []config.PromptWorkflowStep{
+					{
+						Prompt:      promptBaseSystemPrompt,
+						InputSource: "text",
+					},
 					{
 						Prompt:      promptCodeReview,
 						InputSource: "text",
