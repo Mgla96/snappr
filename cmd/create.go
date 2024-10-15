@@ -39,7 +39,7 @@ var createCmd = &cobra.Command{
 				Retries:      llmRetries,
 			},
 		})
-		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, fileRegexPattern, printOnly)
+		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, knowledgeSources, fileRegexPattern, printOnly)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Error executing Create PR")
 		}

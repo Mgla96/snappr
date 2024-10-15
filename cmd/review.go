@@ -47,7 +47,7 @@ var reviewCmd = &cobra.Command{
 				Retries:      llmRetries,
 			},
 		})
-		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, fileRegexPattern, printOnly)
+		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, knowledgeSources, fileRegexPattern, printOnly)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Error executing PR review")
 		}
@@ -68,6 +68,7 @@ func init() {
 	reviewCmd.Flags().StringVar(&llmEndpoint, "llmEndpoint", "", "Endpoint for the LLM service (defaults to OpenAI)")
 	reviewCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 	reviewCmd.Flags().StringVar(&llmAPI, "llmAPI", "openai", "Type of LLM API to use (ollama or openai)")
+	reviewCmd.Flags().StringVar(&knowledgeSources, "knowledgeSources", "", "Knowledge sources to use for the workflow (, delimited without spaces)")
 
 	err := reviewCmd.MarkFlagRequired("repository")
 	if err != nil {
