@@ -1021,3 +1021,92 @@ func TestNew(t *testing.T) {
 		})
 	}
 }
+
+func Test_extractKnowledgeSourceData(t *testing.T) {
+	type args struct {
+		knowledgeSources    string
+		cfgKnowledgeSources []config.KnowledgeSource
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "Skip knowledge sources",
+			args: args{
+				knowledgeSources:    "",
+				cfgKnowledgeSources: []config.KnowledgeSource{},
+			},
+			want:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "Skip knowledge sources",
+			args: args{
+				knowledgeSources: "foo,baz",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name:  "foo",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "bar",
+					},
+					{
+						Name:  "baz",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "qux",
+					},
+					{
+						Name:  "not-included",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "not-included",
+					},
+				},
+			},
+			want:    []string{"bar", "qux"},
+			wantErr: false,
+		},
+		{
+			name: "Skip empty string, and not implemented knowledge source type",
+			args: args{
+				knowledgeSources: "foo,,",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name: "foo",
+						Type: config.KnowledgeSourceTypeAPI,
+					},
+				},
+			},
+			want:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "error reading file",
+			args: args{
+				knowledgeSources: "foo,,",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name:  "foo",
+						Type:  config.KnowledgeSourceTypeFile,
+						Value: "qa-non-existent-file-abc",
+					},
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := extractKnowledgeSourceData(tt.args.knowledgeSources, tt.args.cfgKnowledgeSources)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractKnowledgeSourceData() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("extractKnowledgeSourceData() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
