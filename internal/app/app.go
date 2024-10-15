@@ -143,6 +143,11 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 
 	// Parse code and feed to LLM with prompt
 	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
+	knowledgeSources, err := RetrieveKnowledge("default", a.cfg.Input.KnowledgeSources)
+	if err != nil {
+		return fmt.Errorf("error retrieving knowledge source: %w", err)
+	}
+
 	var messages []openai.ChatCompletionMessage
 	if promptWorkflow == nil {
 		return fmt.Errorf("workflow not found: %s", workflowName)
@@ -151,6 +156,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 			messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
 		}
 	}
+	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: knowledgeSources})
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(codeJson)})
 
 	response, err := a.chatCompletionWithRetry(ctx, messages, a.cfg.LLM.DefaultModel, a.cfg.LLM.Retries)

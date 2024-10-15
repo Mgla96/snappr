@@ -11,14 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var repository string
-var repositoryOwner string
-var commitSHA string
-var prNumber int
-var printOnly bool
-var llmEndpoint string
-var workflowName string
-
 // reviewCmd represents the review command
 var reviewCmd = &cobra.Command{
 	Use:   "review",
