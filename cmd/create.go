@@ -11,12 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var branch string
-var fileRegexPattern string
-var llmRetries int
-var llmModel string
-var llmAPI string
-
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
@@ -28,6 +22,7 @@ var createCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
 		application := app.SetupNoEnv(&config.Config{
+			Input: inputConfig,
 			Log: config.Log{
 				Level: zerolog.InfoLevel,
 			},
@@ -44,7 +39,7 @@ var createCmd = &cobra.Command{
 				Retries:      llmRetries,
 			},
 		})
-		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, fileRegexPattern, printOnly)
+		err := application.ExecuteCreatePR(context.TODO(), commitSHA, branch, workflowName, knowledgeSources, fileRegexPattern, printOnly)
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Error executing Create PR")
 		}
@@ -66,6 +61,7 @@ func init() {
 	createCmd.Flags().IntVarP(&llmRetries, "llmRetries", "r", 3, "Number of retries for LLM API calls when failing to get a valid llm response")
 	createCmd.Flags().StringVar(&llmAPI, "llmAPI", "openai", "Type of LLM API to use (ollama or openai)")
 	createCmd.Flags().StringVar(&workflowName, "workflowName", "", "Prompt workflow to use (required)")
+	createCmd.Flags().StringVar(&knowledgeSources, "knowledgeSources", "", "Knowledge sources to use for the workflow (, delimited without spaces)")
 
 	err := createCmd.MarkFlagRequired("repository")
 	if err != nil {

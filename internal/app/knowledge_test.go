@@ -3,6 +3,8 @@ package app
 import (
 	"os"
 	"testing"
+
+	"github.com/Mgla96/snappr/internal/config"
 )
 
 func TestRetrieveKnowledge(t *testing.T) {
@@ -19,7 +21,7 @@ func TestRetrieveKnowledge(t *testing.T) {
 
 	type args struct {
 		sourceName       string
-		knowledgeSources []KnowledgeSource
+		knowledgeSources []config.KnowledgeSource
 	}
 	tests := []struct {
 		name    string
@@ -31,10 +33,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName not in knowledgeSources list",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "bar",
-						Type:  KnowledgeSourceTypeText,
+						Type:  config.KnowledgeSourceTypeText,
 						Value: "baz",
 					},
 				},
@@ -45,10 +47,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName in knowledgeSources list and text",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "foo",
-						Type:  KnowledgeSourceTypeText,
+						Type:  config.KnowledgeSourceTypeText,
 						Value: "baz",
 					},
 				},
@@ -59,10 +61,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName in knowledgeSources list and file",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "foo",
-						Type:  KnowledgeSourceTypeFile,
+						Type:  config.KnowledgeSourceTypeFile,
 						Value: file.Name(),
 					},
 				},
@@ -73,10 +75,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName in knowledgeSources list and file that doesn't exist",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "foo",
-						Type:  KnowledgeSourceTypeFile,
+						Type:  config.KnowledgeSourceTypeFile,
 						Value: "file-does-not-exist",
 					},
 				},
@@ -88,10 +90,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName in knowledgeSources list and URL",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "foo",
-						Type:  KnowledgeSourceTypeURL,
+						Type:  config.KnowledgeSourceTypeURL,
 						Value: "baz",
 					},
 				},
@@ -102,10 +104,10 @@ func TestRetrieveKnowledge(t *testing.T) {
 			name: "sourceName in knowledgeSources list and API",
 			args: args{
 				sourceName: "foo",
-				knowledgeSources: []KnowledgeSource{
+				knowledgeSources: []config.KnowledgeSource{
 					{
 						Name:  "foo",
-						Type:  KnowledgeSourceTypeAPI,
+						Type:  config.KnowledgeSourceTypeAPI,
 						Value: "baz",
 					},
 				},

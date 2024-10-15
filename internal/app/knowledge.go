@@ -3,41 +3,30 @@ package app
 import (
 	"fmt"
 	"os"
-)
 
-type KnowledgeSourceType string
+	"github.com/Mgla96/snappr/internal/config"
+)
 
 const (
-	KnowledgeSourceTypeFile KnowledgeSourceType = "file"
-	KnowledgeSourceTypeURL  KnowledgeSourceType = "url"
-	KnowledgeSourceTypeAPI  KnowledgeSourceType = "api"
-	KnowledgeSourceTypeText KnowledgeSourceType = "text"
-	NotImplementedMessage   string              = "Not implemented"
+	NotImplementedMessage string = "Not implemented"
 )
 
-type KnowledgeSource struct {
-	Name  string              `mapstructure:"name"`
-	Type  KnowledgeSourceType `mapstructure:"type"`
-	Value string              `mapstructure:"value"`
-}
-
-var knowledgeSources []KnowledgeSource
-
-func RetrieveKnowledge(sourceName string, knowledgeSources []KnowledgeSource) (string, error) {
+// RetrieveKnowledge retrieves knowledge from a knowledge source.
+func RetrieveKnowledge(sourceName string, knowledgeSources []config.KnowledgeSource) (string, error) {
 	for _, source := range knowledgeSources {
 		if source.Name == sourceName {
 			switch source.Type {
-			case KnowledgeSourceTypeFile:
+			case config.KnowledgeSourceTypeFile:
 				data, err := os.ReadFile(source.Value)
 				if err != nil {
 					return "", fmt.Errorf("could not read file: %w", err)
 				}
 				return string(data), nil
-			case KnowledgeSourceTypeURL:
+			case config.KnowledgeSourceTypeURL:
 				return NotImplementedMessage, nil
-			case KnowledgeSourceTypeAPI:
+			case config.KnowledgeSourceTypeAPI:
 				return NotImplementedMessage, nil
-			case KnowledgeSourceTypeText:
+			case config.KnowledgeSourceTypeText:
 				return source.Value, nil
 			}
 		}

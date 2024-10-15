@@ -118,8 +118,29 @@ func (a *App) chatCompletionWithRetry(ctx context.Context, messages []openai.Cha
 	return response, err
 }
 
+func extractKnowledgeSourceData(knowledgeSources string, cfgKnowledgeSources []config.KnowledgeSource) ([]string, error) {
+	knowledgeSourceData := []string{}
+	if knowledgeSources != "" {
+		for _, source := range strings.Split(knowledgeSources, ",") {
+			if source == "" {
+				continue
+			}
+			data, err := RetrieveKnowledge(source, cfgKnowledgeSources)
+			if err != nil {
+				return nil, fmt.Errorf("error retrieving knowledge source: %w", err)
+			}
+			if data == NotImplementedMessage {
+				// TODO(mgottlieb): Log a warning here
+				continue
+			}
+			knowledgeSourceData = append(knowledgeSourceData, data)
+		}
+	}
+	return knowledgeSourceData, nil
+}
+
 // ExecuteCreatePR executes the create PR workflow.
-func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowName, fileRegexPattern string, printOnly bool) error {
+func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowName, knowledgeSources, fileRegexPattern string, printOnly bool) error {
 	// Get code on GitHub from commit
 	code, err := a.githubClient.GetCommitCode(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, commitSHA, clients.CodeFilter{
 		FileRegexPattern: fileRegexPattern,
@@ -143,13 +164,22 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 
 	// Parse code and feed to LLM with prompt
 	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
-	var messages []openai.ChatCompletionMessage
 	if promptWorkflow == nil {
 		return fmt.Errorf("workflow not found: %s", workflowName)
-	} else {
-		for _, step := range promptWorkflow.Steps {
-			messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
-		}
+	}
+
+	knowledgeSourceData, err := extractKnowledgeSourceData(knowledgeSources, a.cfg.Input.KnowledgeSources)
+	if err != nil {
+		return fmt.Errorf("error extracting knowledge source data: %w", err)
+	}
+
+	var messages []openai.ChatCompletionMessage
+
+	for _, step := range promptWorkflow.Steps {
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
+	}
+	for i, knowledgeSourceData := range knowledgeSourceData {
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + fmt.Sprintf("%d", i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
 	}
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(codeJson)})
 
@@ -198,7 +228,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 }
 
 // ExecutePRReview executes the PR review workflow.
-func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber int, workflowName, fileRegexPattern string, printOnly bool) error {
+func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber int, workflowName, knowledgeSources, fileRegexPattern string, printOnly bool) error {
 	// Get code on GitHub from commit
 	code, err := a.githubClient.GetPRCode(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, nil, clients.CodeFilter{
 		FileRegexPattern: fileRegexPattern,
@@ -246,14 +276,25 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 	}
 
 	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
-	var messages []openai.ChatCompletionMessage
 	if promptWorkflow == nil {
 		return fmt.Errorf("workflow not found: %s", workflowName)
-	} else {
-		for _, step := range promptWorkflow.Steps {
-			messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
-		}
 	}
+
+	knowledgeSourceData, err := extractKnowledgeSourceData(knowledgeSources, a.cfg.Input.KnowledgeSources)
+	if err != nil {
+		return fmt.Errorf("error extracting knowledge source data: %w", err)
+	}
+
+	var messages []openai.ChatCompletionMessage
+
+	for _, step := range promptWorkflow.Steps {
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
+	}
+
+	for i, knowledgeSourceData := range knowledgeSourceData {
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + fmt.Sprintf("%d", i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
+	}
+
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(res)})
 
 	response, err := a.chatCompletionWithRetry(ctx, messages, a.cfg.LLM.DefaultModel, a.cfg.LLM.Retries)

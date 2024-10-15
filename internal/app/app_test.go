@@ -42,11 +42,12 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 		log          zerolog.Logger
 	}
 	type args struct {
-		ctx          context.Context
-		commitSHA    string
-		branch       string
-		workflowName string
-		printOnly    bool
+		ctx              context.Context
+		commitSHA        string
+		branch           string
+		workflowName     string
+		knowledgeSources string
+		printOnly        bool
 	}
 	tests := []struct {
 		name    string
@@ -77,7 +78,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -138,7 +140,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -172,7 +175,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -206,8 +210,9 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				printOnly:    true,
-				workflowName: "foo",
+				printOnly:        true,
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: false,
 		},
@@ -241,7 +246,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -318,7 +324,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -361,7 +368,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -406,7 +414,8 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				},
 			},
 			args: args{
-				workflowName: "foo",
+				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: false,
 		},
@@ -419,7 +428,7 @@ func TestApp_ExecuteCreatePR(t *testing.T) {
 				llmClient:    tt.fields.llmClient,
 				log:          tt.fields.log,
 			}
-			if err := a.ExecuteCreatePR(tt.args.ctx, tt.args.commitSHA, tt.args.branch, tt.args.workflowName, `.*\.go$`, tt.args.printOnly); (err != nil) != tt.wantErr {
+			if err := a.ExecuteCreatePR(tt.args.ctx, tt.args.commitSHA, tt.args.branch, tt.args.workflowName, tt.args.knowledgeSources, `.*\.go$`, tt.args.printOnly); (err != nil) != tt.wantErr {
 				t.Errorf("App.Execute() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -545,6 +554,7 @@ index 789abc..012def 100644
 		commitSHA        string
 		prNumber         int
 		workflowName     string
+		knowledgeSources string
 		fileRegexPattern string
 		printOnly        bool
 	}
@@ -579,6 +589,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -607,6 +618,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -640,6 +652,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -678,6 +691,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -716,6 +730,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -755,6 +770,7 @@ index 789abc..012def 100644
 				printOnly:        true,
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: false,
 		},
@@ -793,6 +809,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: true,
 		},
@@ -834,6 +851,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: false,
 		},
@@ -877,6 +895,7 @@ index 789abc..012def 100644
 			args: args{
 				fileRegexPattern: ".*\\.go$",
 				workflowName:     "foo",
+				knowledgeSources: "bar",
 			},
 			wantErr: false,
 		},
@@ -889,7 +908,7 @@ index 789abc..012def 100644
 				llmClient:    tt.fields.llmClient,
 				log:          tt.fields.log,
 			}
-			if err := a.ExecutePRReview(tt.args.ctx, tt.args.commitSHA, tt.args.prNumber, tt.args.workflowName, tt.args.fileRegexPattern, tt.args.printOnly); (err != nil) != tt.wantErr {
+			if err := a.ExecutePRReview(tt.args.ctx, tt.args.commitSHA, tt.args.prNumber, tt.args.workflowName, tt.args.knowledgeSources, tt.args.fileRegexPattern, tt.args.printOnly); (err != nil) != tt.wantErr {
 				t.Errorf("App.ExecutePRReview() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -998,6 +1017,95 @@ func TestNew(t *testing.T) {
 			got := New(tt.args.cfg, tt.args.githubClient, tt.args.llmClient, tt.args.logger)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_extractKnowledgeSourceData(t *testing.T) {
+	type args struct {
+		knowledgeSources    string
+		cfgKnowledgeSources []config.KnowledgeSource
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "Skip knowledge sources",
+			args: args{
+				knowledgeSources:    "",
+				cfgKnowledgeSources: []config.KnowledgeSource{},
+			},
+			want:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "Skip knowledge sources",
+			args: args{
+				knowledgeSources: "foo,baz",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name:  "foo",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "bar",
+					},
+					{
+						Name:  "baz",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "qux",
+					},
+					{
+						Name:  "not-included",
+						Type:  config.KnowledgeSourceTypeText,
+						Value: "not-included",
+					},
+				},
+			},
+			want:    []string{"bar", "qux"},
+			wantErr: false,
+		},
+		{
+			name: "Skip empty string, and not implemented knowledge source type",
+			args: args{
+				knowledgeSources: "foo,,",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name: "foo",
+						Type: config.KnowledgeSourceTypeAPI,
+					},
+				},
+			},
+			want:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "error reading file",
+			args: args{
+				knowledgeSources: "foo,,",
+				cfgKnowledgeSources: []config.KnowledgeSource{
+					{
+						Name:  "foo",
+						Type:  config.KnowledgeSourceTypeFile,
+						Value: "qa-non-existent-file-abc",
+					},
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := extractKnowledgeSourceData(tt.args.knowledgeSources, tt.args.cfgKnowledgeSources)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractKnowledgeSourceData() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("extractKnowledgeSourceData() = %v, want %v", got, tt.want)
 			}
 		})
 	}
