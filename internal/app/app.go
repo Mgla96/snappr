@@ -129,6 +129,10 @@ func extractKnowledgeSourceData(knowledgeSources string, cfgKnowledgeSources []c
 			if err != nil {
 				return nil, fmt.Errorf("error retrieving knowledge source: %w", err)
 			}
+			if data == NotImplementedMessage {
+				// TODO(mgottlieb): Log a warning here
+				continue
+			}
 			knowledgeSourceData = append(knowledgeSourceData, data)
 		}
 	}
