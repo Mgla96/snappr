@@ -160,6 +160,9 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 
 	// Parse code and feed to LLM with prompt
 	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
+	if promptWorkflow == nil {
+		return fmt.Errorf("workflow not found: %s", workflowName)
+	}
 
 	knowledgeSourceData, err := extractKnowledgeSourceData(knowledgeSources, a.cfg.Input.KnowledgeSources)
 	if err != nil {
@@ -167,9 +170,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 	}
 
 	var messages []openai.ChatCompletionMessage
-	if promptWorkflow == nil {
-		return fmt.Errorf("workflow not found: %s", workflowName)
-	}
+
 	for _, step := range promptWorkflow.Steps {
 		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
 	}
@@ -271,6 +272,9 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 	}
 
 	promptWorkflow := GetWorkflowByName(workflowName, a.cfg.Input.PromptWorkflows)
+	if promptWorkflow == nil {
+		return fmt.Errorf("workflow not found: %s", workflowName)
+	}
 
 	knowledgeSourceData, err := extractKnowledgeSourceData(knowledgeSources, a.cfg.Input.KnowledgeSources)
 	if err != nil {
@@ -278,9 +282,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 	}
 
 	var messages []openai.ChatCompletionMessage
-	if promptWorkflow == nil {
-		return fmt.Errorf("workflow not found: %s", workflowName)
-	}
+
 	for _, step := range promptWorkflow.Steps {
 		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
 	}
