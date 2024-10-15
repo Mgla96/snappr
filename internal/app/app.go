@@ -174,7 +174,7 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: step.Prompt})
 	}
 	for i, knowledgeSourceData := range knowledgeSourceData {
-		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + string(i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + fmt.Sprintf("%d", i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
 	}
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(codeJson)})
 
@@ -286,7 +286,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 	}
 
 	for i, knowledgeSourceData := range knowledgeSourceData {
-		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + string(i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
+		messages = append(messages, openai.ChatCompletionMessage{Role: string(system), Content: "start knowledge context " + fmt.Sprintf("%d", i) + " {" + knowledgeSourceData + "} end knowledge context.\n"})
 	}
 
 	messages = append(messages, openai.ChatCompletionMessage{Role: string(user), Content: string(res)})
