@@ -256,24 +256,38 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 //   - The created PullRequestComment object.
 //   - An error if any occurred during the API request.
 func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int, startSide, side Side) (*github.PullRequestComment, error) {
-	comment := &github.PullRequestComment{
-		// Text content of the comment
-		Body: github.String(commentBody),
-		// SHA of the commit to comment on
-		CommitID: github.String(commitID),
-		// Filepath which the comment applies
-		Path: github.String(path),
-		// First line of range you want to comment on
-		StartLine: github.Int(startLine),
-		// Last line of range you want to comment on
-		Line:      github.Int(line),
-		Side:      github.String(string(side)),
-		StartSide: github.String(string(startSide)),
+	var comment *github.PullRequestComment
+	if startLine == line {
+		comment = &github.PullRequestComment{
+			// Text content of the comment
+			Body: github.String(commentBody),
+			// SHA of the commit to comment on
+			CommitID: github.String(commitID),
+			// Filepath which the comment applies
+			Path: github.String(path),
+			// Line of the blob in the pull request diff that the comment applies to
+			Line: github.Int(line),
+			Side: github.String(string(side)),
+		}
+	} else {
+		comment = &github.PullRequestComment{
+			// Text content of the comment
+			Body: github.String(commentBody),
+			// SHA of the commit to comment on
+			CommitID: github.String(commitID),
+			// Filepath which the comment applies
+			Path: github.String(path),
+			// First line of range you want to comment on
+			StartLine: github.Int(startLine),
+			// Last line of range you want to comment on
+			Line:      github.Int(line),
+			Side:      github.String(string(side)),
+			StartSide: github.String(string(startSide)),
+		}
 	}
-
 	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)
 	if err != nil {
-		return nil, fmt.Errorf("error creating comment: %w", err)
+		return nil, fmt.Errorf("error creating comment: %v: %w", comment, err)
 	}
 
 	return prComment, nil
