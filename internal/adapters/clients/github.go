@@ -266,9 +266,10 @@ func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner
 		// First line of range you want to comment on
 		StartLine: github.Int(startLine),
 		// Last line of range you want to comment on
-		Line:      github.Int(line),
-		Side:      github.String(string(side)),
-		StartSide: github.String(string(startSide)),
+		Line:        github.Int(line),
+		Side:        github.String(string(side)),
+		StartSide:   github.String(string(startSide)),
+		SubjectType: github.String("line"),
 	}
 
 	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)
