@@ -40,21 +40,22 @@ type FileChange struct {
 	Patch       string
 }
 **Requirements:**
-- **Return Format:** Provide code review feedback in a JSON structured as:
-- type PRReviewMap map[string][]PRCommentInfo
-- type PRCommentInfo struct {
+**Return Format:** Provide code review feedback in a JSON structured as:
+// PRReviewMap is a map of file paths to a list of PRCommentInfo
+type PRReviewMap map[string][]PRCommentInfo
+type PRCommentInfo struct {
 	CommentBody string
-	StartLine   int
-	Line        int
+	// The start_line is the first line in the pull request diff that your multi-line comment applies to.
+	StartLine int
+	// The line of the blob in the pull request diff that the comment applies to. For a multi-line comment, the last line of the range that your comment applies to.
+	Line int
+	// Side of the diff for the last line. Can be LEFT or RIGHT.
+	Side clients.Side
+	// The start_side is the starting side of the diff that the comment applies to. Can be LEFT or RIGHT.
+	StartSide clients.Side
 }
 **Objective:** Deliver actionable, line-specific feedback on only the code that was changed as part of the git diff. The git diff provides the exact lines you need to look at.
-**Example JSON response:**
-{
-	"/path/to/file.go": [
-		{"CommentBody": "Use a more descriptive variable name.", "StartLine": 10, "Line": 12},
-		{"CommentBody": "Optimize the loop to reduce redundancy.", "StartLine": 15, "Line": 17}
-	]
-}`
+`
 )
 
 type SnapprUserConfig struct {

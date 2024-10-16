@@ -10,18 +10,20 @@ import (
 )
 
 type FakeGithubClient struct {
-	AddCommentToPullRequestReviewStub        func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error)
+	AddCommentToPullRequestReviewStub        func(context.Context, string, string, int, string, string, string, int, int, clients.Side, clients.Side) (*github.PullRequestComment, error)
 	addCommentToPullRequestReviewMutex       sync.RWMutex
 	addCommentToPullRequestReviewArgsForCall []struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 int
-		arg5 string
-		arg6 string
-		arg7 string
-		arg8 int
-		arg9 int
+		arg1  context.Context
+		arg2  string
+		arg3  string
+		arg4  int
+		arg5  string
+		arg6  string
+		arg7  string
+		arg8  int
+		arg9  int
+		arg10 clients.Side
+		arg11 clients.Side
 	}
 	addCommentToPullRequestReviewReturns struct {
 		result1 *github.PullRequestComment
@@ -186,26 +188,28 @@ type FakeGithubClient struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeGithubClient) AddCommentToPullRequestReview(arg1 context.Context, arg2 string, arg3 string, arg4 int, arg5 string, arg6 string, arg7 string, arg8 int, arg9 int) (*github.PullRequestComment, error) {
+func (fake *FakeGithubClient) AddCommentToPullRequestReview(arg1 context.Context, arg2 string, arg3 string, arg4 int, arg5 string, arg6 string, arg7 string, arg8 int, arg9 int, arg10 clients.Side, arg11 clients.Side) (*github.PullRequestComment, error) {
 	fake.addCommentToPullRequestReviewMutex.Lock()
 	ret, specificReturn := fake.addCommentToPullRequestReviewReturnsOnCall[len(fake.addCommentToPullRequestReviewArgsForCall)]
 	fake.addCommentToPullRequestReviewArgsForCall = append(fake.addCommentToPullRequestReviewArgsForCall, struct {
-		arg1 context.Context
-		arg2 string
-		arg3 string
-		arg4 int
-		arg5 string
-		arg6 string
-		arg7 string
-		arg8 int
-		arg9 int
-	}{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})
+		arg1  context.Context
+		arg2  string
+		arg3  string
+		arg4  int
+		arg5  string
+		arg6  string
+		arg7  string
+		arg8  int
+		arg9  int
+		arg10 clients.Side
+		arg11 clients.Side
+	}{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11})
 	stub := fake.AddCommentToPullRequestReviewStub
 	fakeReturns := fake.addCommentToPullRequestReviewReturns
-	fake.recordInvocation("AddCommentToPullRequestReview", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9})
+	fake.recordInvocation("AddCommentToPullRequestReview", []interface{}{arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11})
 	fake.addCommentToPullRequestReviewMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+		return stub(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -219,17 +223,17 @@ func (fake *FakeGithubClient) AddCommentToPullRequestReviewCallCount() int {
 	return len(fake.addCommentToPullRequestReviewArgsForCall)
 }
 
-func (fake *FakeGithubClient) AddCommentToPullRequestReviewCalls(stub func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error)) {
+func (fake *FakeGithubClient) AddCommentToPullRequestReviewCalls(stub func(context.Context, string, string, int, string, string, string, int, int, clients.Side, clients.Side) (*github.PullRequestComment, error)) {
 	fake.addCommentToPullRequestReviewMutex.Lock()
 	defer fake.addCommentToPullRequestReviewMutex.Unlock()
 	fake.AddCommentToPullRequestReviewStub = stub
 }
 
-func (fake *FakeGithubClient) AddCommentToPullRequestReviewArgsForCall(i int) (context.Context, string, string, int, string, string, string, int, int) {
+func (fake *FakeGithubClient) AddCommentToPullRequestReviewArgsForCall(i int) (context.Context, string, string, int, string, string, string, int, int, clients.Side, clients.Side) {
 	fake.addCommentToPullRequestReviewMutex.RLock()
 	defer fake.addCommentToPullRequestReviewMutex.RUnlock()
 	argsForCall := fake.addCommentToPullRequestReviewArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6, argsForCall.arg7, argsForCall.arg8, argsForCall.arg9
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5, argsForCall.arg6, argsForCall.arg7, argsForCall.arg8, argsForCall.arg9, argsForCall.arg10, argsForCall.arg11
 }
 
 func (fake *FakeGithubClient) AddCommentToPullRequestReviewReturns(result1 *github.PullRequestComment, result2 error) {

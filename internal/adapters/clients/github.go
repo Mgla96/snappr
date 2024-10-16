@@ -15,6 +15,13 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type Side string
+
+const (
+	Left  Side = "LEFT"
+	Right Side = "RIGHT"
+)
+
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
 
 // gitService is an interface for interacting with github git service
@@ -146,6 +153,7 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Tree:    tree,
 		Parents: []*github.Commit{parentCommit},
 	}
+
 	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit, nil)
 	if err != nil {
 		return err
@@ -247,7 +255,7 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 // Returns:
 //   - The created PullRequestComment object.
 //   - An error if any occurred during the API request.
-func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error) {
+func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int, startSide, side Side) (*github.PullRequestComment, error) {
 	comment := &github.PullRequestComment{
 		// Text content of the comment
 		Body: github.String(commentBody),
@@ -255,12 +263,12 @@ func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner
 		CommitID: github.String(commitID),
 		// Filepath which the comment applies
 		Path: github.String(path),
-		// Position in the diff where the comment should be applied
-		// Position: github.Int(position),
 		// First line of range you want to comment on
 		StartLine: github.Int(startLine),
 		// Last line of range you want to comment on
-		Line: github.Int(line),
+		Line:      github.Int(line),
+		Side:      github.String(string(side)),
+		StartSide: github.String(string(startSide)),
 	}
 
 	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)

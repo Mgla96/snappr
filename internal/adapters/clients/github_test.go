@@ -958,6 +958,8 @@ func TestGithubClient_AddCommentToPullRequestReview(t *testing.T) {
 		path        string
 		startLine   int
 		line        int
+		startSide   Side
+		side        Side
 	}
 	tests := []struct {
 		name    string
@@ -999,7 +1001,7 @@ func TestGithubClient_AddCommentToPullRequestReview(t *testing.T) {
 				ghPullRequestClient: tt.fields.ghPullRequestClient,
 				log:                 tt.fields.log,
 			}
-			got, err := gc.AddCommentToPullRequestReview(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.commentBody, tt.args.commitID, tt.args.path, tt.args.startLine, tt.args.line)
+			got, err := gc.AddCommentToPullRequestReview(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.commentBody, tt.args.commitID, tt.args.path, tt.args.startLine, tt.args.line, tt.args.startSide, tt.args.side)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GithubClient.AddCommentToPullRequestReview() error = %v, wantErr %v", err, tt.wantErr)
 				return
