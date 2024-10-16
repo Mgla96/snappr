@@ -12,7 +12,7 @@ import (
 	"github.com/Mgla96/snappr/internal/adapters/clients"
 	"github.com/Mgla96/snappr/internal/config"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 )
@@ -37,7 +37,7 @@ type githubClient interface {
 	GetLatestCommitFromBranch(ctx context.Context, owner, repo, branch string) (string, error)
 	AddCommitToBranch(ctx context.Context, owner, repo, branch, filePath, commitMessage string, fileContent []byte) error
 	GetCommitCode(context context.Context, owner, repo, commitSHA string, codeFilter clients.CodeFilter) (map[string]string, error)
-	AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error)
+	AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int, startSide, side clients.Side) (*github.PullRequestComment, error)
 	CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error)
 	MergePullRequest(ctx context.Context, owner, repo string, prNumber int, commitMessage string) (*github.PullRequestMergeResult, error)
 	ListPullRequests(ctx context.Context, owner, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, error)
@@ -79,11 +79,18 @@ type FileChange struct {
 	Patch       string `json:"patch"`
 }
 
+// PRReviewMap is a map of file paths to a list of PRCommentInfo
 type PRReviewMap map[string][]PRCommentInfo
 type PRCommentInfo struct {
 	CommentBody string
-	StartLine   int
-	Line        int
+	// The start_line is the first line in the pull request diff that your multi-line comment applies to.
+	StartLine int
+	// The line of the blob in the pull request diff that the comment applies to. For a multi-line comment, the last line of the range that your comment applies to.
+	Line int
+	// Side of the diff for the last line. Can be LEFT or RIGHT.
+	Side clients.Side
+	// The start_side is the starting side of the diff that the comment applies to. Can be LEFT or RIGHT.
+	StartSide clients.Side
 }
 
 type App struct {
@@ -318,7 +325,7 @@ func (a *App) ExecutePRReview(ctx context.Context, commitSHA string, prNumber in
 
 	for filePath, prCommentInfoList := range prReviewMap {
 		for _, prCommentInfo := range prCommentInfoList {
-			prReviewComment, err := a.githubClient.AddCommentToPullRequestReview(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, prCommentInfo.CommentBody, commitSHA, filePath, prCommentInfo.StartLine, prCommentInfo.Line)
+			prReviewComment, err := a.githubClient.AddCommentToPullRequestReview(ctx, a.cfg.Github.Owner, a.cfg.Github.Repo, prNumber, prCommentInfo.CommentBody, commitSHA, filePath, prCommentInfo.StartLine, prCommentInfo.Line, prCommentInfo.StartSide, prCommentInfo.Side)
 			if err != nil {
 				a.log.Error().Err(err).Msgf("Failed to add comment for filepath: %s", filePath)
 			} else {

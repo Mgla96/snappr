@@ -10,9 +10,16 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 	"golang.org/x/oauth2"
+)
+
+type Side string
+
+const (
+	Left  Side = "LEFT"
+	Right Side = "RIGHT"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
@@ -22,7 +29,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . gitService
 type gitService interface {
 	CreateBlob(ctx context.Context, owner string, repo string, blob *github.Blob) (*github.Blob, *github.Response, error)
-	CreateCommit(ctx context.Context, owner string, repo string, commit *github.Commit) (*github.Commit, *github.Response, error)
+	CreateCommit(ctx context.Context, owner string, repo string, commit *github.Commit, opts *github.CreateCommitOptions) (*github.Commit, *github.Response, error)
 	CreateRef(ctx context.Context, owner string, repo string, ref *github.Reference) (*github.Reference, *github.Response, error)
 	CreateTag(ctx context.Context, owner string, repo string, tag *github.Tag) (*github.Tag, *github.Response, error)
 	CreateTree(ctx context.Context, owner string, repo string, baseTree string, entries []*github.TreeEntry) (*github.Tree, *github.Response, error)
@@ -45,32 +52,13 @@ type gitService interface {
 type pullRequestService interface {
 	Create(ctx context.Context, owner string, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
 	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
-	CreateCommentInReplyTo(ctx context.Context, owner string, repo string, number int, body string, commentID int64) (*github.PullRequestComment, *github.Response, error)
 	CreateReview(ctx context.Context, owner string, repo string, number int, review *github.PullRequestReviewRequest) (*github.PullRequestReview, *github.Response, error)
-	DeleteComment(ctx context.Context, owner string, repo string, commentID int64) (*github.Response, error)
-	DeletePendingReview(ctx context.Context, owner string, repo string, number int, reviewID int64) (*github.PullRequestReview, *github.Response, error)
-	DismissReview(ctx context.Context, owner string, repo string, number int, reviewID int64, review *github.PullRequestReviewDismissalRequest) (*github.PullRequestReview, *github.Response, error)
-	Edit(ctx context.Context, owner string, repo string, number int, pull *github.PullRequest) (*github.PullRequest, *github.Response, error)
-	EditComment(ctx context.Context, owner string, repo string, commentID int64, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
 	Get(ctx context.Context, owner string, repo string, number int) (*github.PullRequest, *github.Response, error)
 	GetComment(ctx context.Context, owner string, repo string, commentID int64) (*github.PullRequestComment, *github.Response, error)
 	GetRaw(ctx context.Context, owner string, repo string, number int, opts github.RawOptions) (string, *github.Response, error)
-	GetReview(ctx context.Context, owner string, repo string, number int, reviewID int64) (*github.PullRequestReview, *github.Response, error)
-	IsMerged(ctx context.Context, owner string, repo string, number int) (bool, *github.Response, error)
 	List(ctx context.Context, owner string, repo string, opts *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error)
-	ListComments(ctx context.Context, owner string, repo string, number int, opts *github.PullRequestListCommentsOptions) ([]*github.PullRequestComment, *github.Response, error)
-	ListCommits(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.RepositoryCommit, *github.Response, error)
 	ListFiles(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.CommitFile, *github.Response, error)
-	ListPullRequestsWithCommit(ctx context.Context, owner string, repo string, sha string, opts *github.PullRequestListOptions) ([]*github.PullRequest, *github.Response, error)
-	ListReviewComments(ctx context.Context, owner string, repo string, number int, reviewID int64, opts *github.ListOptions) ([]*github.PullRequestComment, *github.Response, error)
-	ListReviewers(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) (*github.Reviewers, *github.Response, error)
-	ListReviews(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.PullRequestReview, *github.Response, error)
 	Merge(ctx context.Context, owner string, repo string, number int, commitMessage string, options *github.PullRequestOptions) (*github.PullRequestMergeResult, *github.Response, error)
-	RemoveReviewers(ctx context.Context, owner string, repo string, number int, reviewers github.ReviewersRequest) (*github.Response, error)
-	RequestReviewers(ctx context.Context, owner string, repo string, number int, reviewers github.ReviewersRequest) (*github.PullRequest, *github.Response, error)
-	SubmitReview(ctx context.Context, owner string, repo string, number int, reviewID int64, review *github.PullRequestReviewRequest) (*github.PullRequestReview, *github.Response, error)
-	UpdateBranch(ctx context.Context, owner string, repo string, number int, opts *github.PullRequestBranchUpdateOptions) (*github.PullRequestBranchUpdateResponse, *github.Response, error)
-	UpdateReview(ctx context.Context, owner string, repo string, number int, reviewID int64, body string) (*github.PullRequestReview, *github.Response, error)
 }
 
 type GithubClient struct {
@@ -165,7 +153,8 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Tree:    tree,
 		Parents: []*github.Commit{parentCommit},
 	}
-	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit)
+
+	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit, nil)
 	if err != nil {
 		return err
 	}
@@ -266,25 +255,39 @@ func (gc *GithubClient) GetCommitCode(context context.Context, owner, repo, comm
 // Returns:
 //   - The created PullRequestComment object.
 //   - An error if any occurred during the API request.
-func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int) (*github.PullRequestComment, error) {
-	comment := &github.PullRequestComment{
-		// Text content of the comment
-		Body: github.String(commentBody),
-		// SHA of the commit to comment on
-		CommitID: github.String(commitID),
-		// Filepath which the comment applies
-		Path: github.String(path),
-		// Position in the diff where the comment should be applied
-		// Position: github.Int(position),
-		// First line of range you want to comment on
-		StartLine: github.Int(startLine),
-		// Last line of range you want to comment on
-		Line: github.Int(line),
+func (gc *GithubClient) AddCommentToPullRequestReview(ctx context.Context, owner, repo string, prNumber int, commentBody, commitID, path string, startLine, line int, startSide, side Side) (*github.PullRequestComment, error) {
+	var comment *github.PullRequestComment
+	if startLine == line {
+		comment = &github.PullRequestComment{
+			// Text content of the comment
+			Body: github.String(commentBody),
+			// SHA of the commit to comment on
+			CommitID: github.String(commitID),
+			// Filepath which the comment applies
+			Path: github.String(path),
+			// Line of the blob in the pull request diff that the comment applies to
+			Line: github.Int(line),
+			Side: github.String(string(side)),
+		}
+	} else {
+		comment = &github.PullRequestComment{
+			// Text content of the comment
+			Body: github.String(commentBody),
+			// SHA of the commit to comment on
+			CommitID: github.String(commitID),
+			// Filepath which the comment applies
+			Path: github.String(path),
+			// First line of range you want to comment on
+			StartLine: github.Int(startLine),
+			// Last line of range you want to comment on
+			Line:      github.Int(line),
+			Side:      github.String(string(side)),
+			StartSide: github.String(string(startSide)),
+		}
 	}
-
 	prComment, _, err := gc.ghPullRequestClient.CreateComment(ctx, owner, repo, prNumber, comment)
 	if err != nil {
-		return nil, fmt.Errorf("error creating comment: %w", err)
+		return nil, fmt.Errorf("error creating comment: %v: %w", comment, err)
 	}
 
 	return prComment, nil

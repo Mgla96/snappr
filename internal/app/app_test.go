@@ -13,7 +13,7 @@ import (
 	"github.com/Mgla96/snappr/internal/app/appfakes"
 	"github.com/Mgla96/snappr/internal/config"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/require"
@@ -838,7 +838,7 @@ index 789abc..012def 100644
 					GetPRPatchStub: func(context.Context, string, string, int) (string, error) {
 						return rawDiff, nil
 					},
-					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error) {
+					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int, clients.Side, clients.Side) (*github.PullRequestComment, error) {
 						return nil, fmt.Errorf("error adding comment to pull request review")
 					},
 				},
@@ -880,7 +880,7 @@ index 789abc..012def 100644
 					GetPRPatchStub: func(context.Context, string, string, int) (string, error) {
 						return rawDiff, nil
 					},
-					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int) (*github.PullRequestComment, error) {
+					AddCommentToPullRequestReviewStub: func(context.Context, string, string, int, string, string, string, int, int, clients.Side, clients.Side) (*github.PullRequestComment, error) {
 						return &github.PullRequestComment{
 							Body: github.String(""),
 						}, nil

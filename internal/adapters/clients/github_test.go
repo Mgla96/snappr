@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/Mgla96/snappr/internal/adapters/clients/clientsfakes"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 )
 
@@ -680,7 +680,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return nil, nil, fmt.Errorf("error")
 					},
 				},
@@ -723,7 +723,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return &github.Commit{
 							SHA: github.String("commitSHA"),
 						}, nil, nil
@@ -771,7 +771,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return &github.Commit{
 							SHA: github.String("commitSHA"),
 						}, nil, nil
@@ -958,6 +958,8 @@ func TestGithubClient_AddCommentToPullRequestReview(t *testing.T) {
 		path        string
 		startLine   int
 		line        int
+		startSide   Side
+		side        Side
 	}
 	tests := []struct {
 		name    string
@@ -999,7 +1001,7 @@ func TestGithubClient_AddCommentToPullRequestReview(t *testing.T) {
 				ghPullRequestClient: tt.fields.ghPullRequestClient,
 				log:                 tt.fields.log,
 			}
-			got, err := gc.AddCommentToPullRequestReview(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.commentBody, tt.args.commitID, tt.args.path, tt.args.startLine, tt.args.line)
+			got, err := gc.AddCommentToPullRequestReview(tt.args.ctx, tt.args.owner, tt.args.repo, tt.args.prNumber, tt.args.commentBody, tt.args.commitID, tt.args.path, tt.args.startLine, tt.args.line, tt.args.startSide, tt.args.side)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GithubClient.AddCommentToPullRequestReview() error = %v, wantErr %v", err, tt.wantErr)
 				return
