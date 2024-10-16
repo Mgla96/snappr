@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/Mgla96/snappr/internal/adapters/clients/clientsfakes"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 )
 

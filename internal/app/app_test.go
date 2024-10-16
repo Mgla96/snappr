@@ -13,7 +13,7 @@ import (
 	"github.com/Mgla96/snappr/internal/app/appfakes"
 	"github.com/Mgla96/snappr/internal/config"
 	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/require"

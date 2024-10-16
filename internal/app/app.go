@@ -12,7 +12,7 @@ import (
 	"github.com/Mgla96/snappr/internal/adapters/clients"
 	"github.com/Mgla96/snappr/internal/config"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 	"github.com/rs/zerolog"
 	"github.com/sashabaranov/go-openai"
 )

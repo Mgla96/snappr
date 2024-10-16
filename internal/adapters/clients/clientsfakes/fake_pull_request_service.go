@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v66/github"
 )
 
 type FakePullRequestService struct {
