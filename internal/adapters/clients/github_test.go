@@ -680,7 +680,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return nil, nil, fmt.Errorf("error")
 					},
 				},
@@ -723,7 +723,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return &github.Commit{
 							SHA: github.String("commitSHA"),
 						}, nil, nil
@@ -771,7 +771,7 @@ func TestGithubClient_AddCommitToBranch(t *testing.T) {
 							SHA: github.String("commitSHA"),
 						}, nil, nil
 					},
-					CreateCommitStub: func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error) {
+					CreateCommitStub: func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 						return &github.Commit{
 							SHA: github.String("commitSHA"),
 						}, nil, nil

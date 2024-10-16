@@ -44,7 +44,7 @@ type gitService interface {
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . pullRequestService
 type pullRequestService interface {
 	Create(ctx context.Context, owner string, repo string, pull *github.NewPullRequest) (*github.PullRequest, *github.Response, error)
-	CreateComment(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.PullRequestComment, *github.Response, error)
+	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
 	CreateReview(ctx context.Context, owner string, repo string, number int, review *github.PullRequestReviewRequest) (*github.PullRequestReview, *github.Response, error)
 	Get(ctx context.Context, owner string, repo string, number int) (*github.PullRequest, *github.Response, error)
 	GetComment(ctx context.Context, owner string, repo string, commentID int64) (*github.PullRequestComment, *github.Response, error)
@@ -146,7 +146,7 @@ func (gc *GithubClient) AddCommitToBranch(ctx context.Context, owner, repo, bran
 		Tree:    tree,
 		Parents: []*github.Commit{parentCommit},
 	}
-	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit)
+	newCommit, _, err := gc.ghGitClient.CreateCommit(ctx, owner, repo, commit, nil)
 	if err != nil {
 		return err
 	}

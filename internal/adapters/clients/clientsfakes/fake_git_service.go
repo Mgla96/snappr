@@ -27,13 +27,14 @@ type FakeGitService struct {
 		result2 *github.Response
 		result3 error
 	}
-	CreateCommitStub        func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error)
+	CreateCommitStub        func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error)
 	createCommitMutex       sync.RWMutex
 	createCommitArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 		arg3 string
 		arg4 *github.Commit
+		arg5 *github.CreateCommitOptions
 	}
 	createCommitReturns struct {
 		result1 *github.Commit
@@ -336,7 +337,7 @@ func (fake *FakeGitService) CreateBlobReturnsOnCall(i int, result1 *github.Blob,
 	}{result1, result2, result3}
 }
 
-func (fake *FakeGitService) CreateCommit(arg1 context.Context, arg2 string, arg3 string, arg4 *github.Commit) (*github.Commit, *github.Response, error) {
+func (fake *FakeGitService) CreateCommit(arg1 context.Context, arg2 string, arg3 string, arg4 *github.Commit, arg5 *github.CreateCommitOptions) (*github.Commit, *github.Response, error) {
 	fake.createCommitMutex.Lock()
 	ret, specificReturn := fake.createCommitReturnsOnCall[len(fake.createCommitArgsForCall)]
 	fake.createCommitArgsForCall = append(fake.createCommitArgsForCall, struct {
@@ -344,13 +345,14 @@ func (fake *FakeGitService) CreateCommit(arg1 context.Context, arg2 string, arg3
 		arg2 string
 		arg3 string
 		arg4 *github.Commit
-	}{arg1, arg2, arg3, arg4})
+		arg5 *github.CreateCommitOptions
+	}{arg1, arg2, arg3, arg4, arg5})
 	stub := fake.CreateCommitStub
 	fakeReturns := fake.createCommitReturns
-	fake.recordInvocation("CreateCommit", []interface{}{arg1, arg2, arg3, arg4})
+	fake.recordInvocation("CreateCommit", []interface{}{arg1, arg2, arg3, arg4, arg5})
 	fake.createCommitMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3, arg4)
+		return stub(arg1, arg2, arg3, arg4, arg5)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2, ret.result3
@@ -364,17 +366,17 @@ func (fake *FakeGitService) CreateCommitCallCount() int {
 	return len(fake.createCommitArgsForCall)
 }
 
-func (fake *FakeGitService) CreateCommitCalls(stub func(context.Context, string, string, *github.Commit) (*github.Commit, *github.Response, error)) {
+func (fake *FakeGitService) CreateCommitCalls(stub func(context.Context, string, string, *github.Commit, *github.CreateCommitOptions) (*github.Commit, *github.Response, error)) {
 	fake.createCommitMutex.Lock()
 	defer fake.createCommitMutex.Unlock()
 	fake.CreateCommitStub = stub
 }
 
-func (fake *FakeGitService) CreateCommitArgsForCall(i int) (context.Context, string, string, *github.Commit) {
+func (fake *FakeGitService) CreateCommitArgsForCall(i int) (context.Context, string, string, *github.Commit, *github.CreateCommitOptions) {
 	fake.createCommitMutex.RLock()
 	defer fake.createCommitMutex.RUnlock()
 	argsForCall := fake.createCommitArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4, argsForCall.arg5
 }
 
 func (fake *FakeGitService) CreateCommitReturns(result1 *github.Commit, result2 *github.Response, result3 error) {
