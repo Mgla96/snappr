@@ -82,8 +82,12 @@ type FileChange struct {
 type PRReviewMap map[string][]PRCommentInfo
 type PRCommentInfo struct {
 	CommentBody string
-	StartLine   int
-	Line        int
+	// The start_line is the first line in the pull request diff that your multi-line comment applies to.
+	StartLine int
+	// The line of the blob in the pull request diff that the comment applies to. For a multi-line comment, the last line of the range that your comment applies to.
+	Line int
+	// The start_side is the starting side of the diff that the comment applies to. Can be LEFT or RIGHT.
+	StartSide string
 }
 
 type App struct {
