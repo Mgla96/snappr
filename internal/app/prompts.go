@@ -54,7 +54,9 @@ type PRCommentInfo struct {
 	// The start_side is the starting side of the diff that the comment applies to. Can be LEFT or RIGHT.
 	StartSide clients.Side
 }
+
 **Objective:** Deliver actionable, line-specific feedback on only the code that was changed as part of the git diff. The git diff provides the exact lines you need to look at.
+StartLine and Line must both fall within the same @@ hunk range.
 `
 )
 
