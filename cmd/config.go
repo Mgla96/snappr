@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -10,8 +9,7 @@ import (
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Manage configurations, workflows, and knowledge sources",
-	Long: `Manage configurations, workflows, and knowledge sources. 
-These configuration values are by default stored in ~/.snappr/config.yaml and can be manually edited.`,
+	Long: `Manage configurations, workflows, and knowledge sources. \nThese configuration values are by default stored in ~/.snappr/config.yaml and can be manually edited.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("config called")
 	},
@@ -19,5 +17,9 @@ These configuration values are by default stored in ~/.snappr/config.yaml and ca
 
 func init() {
 	rootCmd.AddCommand(configCmd)
+	// Ensure listCmd is initialized before adding
+	initListCmd()
 	configCmd.AddCommand(listCmd)
 }
+
+func initListCmd() {}
