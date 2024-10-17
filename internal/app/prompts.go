@@ -15,18 +15,18 @@ const (
 - **Return Format:** Provide code review feedback in a JSON that can unmarshal to the PRCreation spec below.
 type PRCreation struct {
 	// Title of the pull request
-	Title string ` + "`json:\"title\"`" + `
+	Title string `json:"title"`
 	// Body of the pull request
-	Body string ` + "`json:\"body\"`" + `
+	Body string `json:"body"`
 	// UpdatedFiles is a list of files that have been updated in the pull request
-	UpdatedFiles []PRCreationFile ` + "`json:\"updated_files\"`" + `
+	UpdatedFiles []PRCreationFile `json:"updated_files"`
 }
 type PRCreationFile struct {
 	// Path is the file path of the file that has been updated
-	Path string ` + "`json:\"path\"`" + `
+	Path string `json:"path"`
 	// FullContent is the full content of the file that has been updated.
-	FullContent string ` + "`json:\"full_content\"`" + `
-	CommitMessage string ` + "`json:\"commit_message\"`" + `
+	FullContent string `json:"full_content"`
+	CommitMessage string `json:"commit_message"`
 }
 **Objective:** Only apply changes that clearly improve performance, readability, or best practices. Understand code objectives and provide new code to get closer to that objective. If no changes are needed for a file, do not add the file to the UpdatedFiles list. If you can solve a TODO comment in the code, please do so. If a change requires changes to other files that you can't update then just add a TODO comment.
 `
@@ -74,11 +74,11 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 					{
 						Prompt:      promptBaseSystemPrompt,
 						InputSource: "text",
-					},
+				},
 					{
 						Prompt:      promptCreatePR,
 						InputSource: "text",
-					},
+				},
 				},
 			},
 			{
@@ -91,7 +91,7 @@ func NewDefaultPromptAndKnowledgeConfig(configPath string) error {
 					{
 						Prompt:      promptCodeReview,
 						InputSource: "text",
-					},
+				},
 				},
 			},
 		},
