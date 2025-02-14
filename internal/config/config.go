@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// ServicePrefix - imagery producer specific env vars have this prefix
+// ServicePrefix - snappr specific env vars have this prefix
 const ServicePrefix = "PR"
 
 // Log level config

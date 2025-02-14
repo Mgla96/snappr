@@ -33,7 +33,7 @@ const (
 )
 ```
 
-<a name="ServicePrefix"></a>ServicePrefix \- imagery producer specific env vars have this prefix
+<a name="ServicePrefix"></a>ServicePrefix \- snappr specific env vars have this prefix
 
 ```go
 const ServicePrefix = "PR"

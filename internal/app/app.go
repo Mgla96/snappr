@@ -200,8 +200,8 @@ func (a *App) ExecuteCreatePR(ctx context.Context, commitSHA, branch, workflowNa
 	}
 
 	jsonFromResp := extractJSON(response)
+	a.log.Info().Msg(jsonFromResp)
 	if printOnly {
-		a.log.Info().Msg(jsonFromResp)
 		return nil
 	}
 
