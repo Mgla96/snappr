@@ -91,6 +91,37 @@ Additional knowledge sources can be added to the `knowledgeSources` section foun
 https://go.dev/wiki/CodeReviewComments
 for context on go PR reviews. Also example github workflow -->
 
+### Using Deepseek R1 hosted with Ollama
+
+1. Follow the Ollama download instructions: https://ollama.com/download
+
+1. Run Deepseek
+
+    ```bash
+    ollama run deepseek-r1:8b
+    ```
+
+1. Verify that you can access the model
+
+    ```bash
+    curl http://localhost:11434/api/generate -d '{
+      "model": "deepseek-r1:8b",
+      "prompt": ""
+    }'
+    ```
+
+1. Use the model with SnapPR - Creating a PR.
+
+    To use this model, you will need to specify 3 additional flags for `PRReview` or `PRCreation`.
+
+    `--llmEndpoint http://localhost:11434`
+    `--llmAPI ollama`
+    `--llmModel deepseek-r1:8b`
+
+    ```bash
+    snappr create --llmEndpoint http://localhost:11434 --llmAPI ollama --llmModel deepseek-r1:8b --llmRetries 3 --repository snappr --repositoryOwner Mgla96 --workflowName createPR --branch main --commitSHA 746be20a110b521ccd20039c18d8f8b5c3023532 
+    ```
+
 ### Using Llama3.2 hosted with ollama
 
 1. Follow the Ollama download instructions: https://ollama.com/download
@@ -110,7 +141,14 @@ for context on go PR reviews. Also example github workflow -->
     }'
     ```
 
-1. Use the model with SnapPR
+    ```bash
+    curl http://localhost:11434/api/generate -d '{
+      "model": "deepseek-r1:8b",
+      "prompt": ""
+    }'
+    ```
+
+1. Use the model with SnapPR - Reviewing a PR
 
     To use this model, you will need to specify 3 additional flags for `PRReview` or `PRCreation`.
 
