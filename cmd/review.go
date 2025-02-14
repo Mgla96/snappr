@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Mgla96/snappr/internal/adapters/clients"
@@ -21,37 +22,44 @@ var reviewCmd = &cobra.Command{
 		return app.CheckTokens()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
-		if commitSHA == "" {
-			logger.Fatal().Msg("commitSHA is required")
-		}
-		if prNumber == 0 {
-			logger.Fatal().Msg("prNumber is required and should be greater than 0")
-		}
-
-		application := app.SetupNoEnv(&config.Config{
-			Input: inputConfig,
-			Log: config.Log{
-				Level: zerolog.InfoLevel,
-			},
-			Github: config.Github{
-				Token: os.Getenv("GH_TOKEN"),
-				Owner: repositoryOwner,
-				Repo:  repository,
-			},
-			LLM: config.LLM{
-				Token:        os.Getenv("LLM_TOKEN"),
-				DefaultModel: clients.ModelType(llmModel),
-				Endpoint:     llmEndpoint,
-				APIType:      clients.APIType(llmAPI),
-				Retries:      llmRetries,
-			},
-		})
-		err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, knowledgeSources, fileRegexPattern, printOnly)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("Error executing PR review")
+		if err := reviewRun(commitSHA, prNumber); err != nil {
+			logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+			logger.Fatal().Err(err).Msg("Error executing review")
 		}
 	},
+}
+
+func reviewRun(commitSHALocal string, prNumberLocal int) error {
+	if commitSHALocal == "" {
+		return fmt.Errorf("commitSHA is required")
+	}
+	if prNumberLocal == 0 {
+		return fmt.Errorf("prNumber is required and should be greater than 0")
+	}
+
+	application := app.SetupNoEnv(&config.Config{
+		Input: inputConfig,
+		Log: config.Log{
+			Level: zerolog.InfoLevel,
+		},
+		Github: config.Github{
+			Token: os.Getenv("GH_TOKEN"),
+			Owner: repositoryOwner,
+			Repo:  repository,
+		},
+		LLM: config.LLM{
+			Token:        os.Getenv("LLM_TOKEN"),
+			DefaultModel: clients.ModelType(llmModel),
+			Endpoint:     llmEndpoint,
+			APIType:      clients.APIType(llmAPI),
+			Retries:      llmRetries,
+		},
+	})
+	err := application.ExecutePRReview(context.Background(), commitSHA, prNumber, workflowName, knowledgeSources, fileRegexPattern, printOnly)
+	if err != nil {
+		return fmt.Errorf("error executing PR review: %w", err)
+	}
+	return nil
 }
 
 func init() {
