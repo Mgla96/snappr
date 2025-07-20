@@ -1,0 +1,56 @@
+name: Go
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+
+    - name: Install Snappr
+      run: make build-linux-amd64
+
+    - name: E2E Test
+      env:
+        LLM_ENDPOINT: ${{ secrets.LLM_ENDPOINT }}
+      run: |
+        COMMIT_SHA=$(git rev-parse HEAD)
+
+        ./snappr-linux-amd64 create \
+            --branch qa-${COMMIT_SHA} \
+            --commitSHA ${COMMIT_SHA} \
+            --fileRegexPattern ".*\\.go$" \
+            --knowledgeSources '' \
+            --llmAPI ollama \
+            --llmEndpoint ${{ secrets.LLM_ENDPOINT }} \
+            --llmModel llama3.2 \
+            --repository snappr \
+            --repositoryOwner Mgla96 \
+            --workflowName createPR
+
+        # Github command to get last commit sha from latest commit on branch
+
+        PR_COMMIT_SHA = foo
+        
+
+        ./snappr-linux-amd64 review \
+             --prNumber 29 \
+             --commitSHA ${PR_COMMIT_SHA} \
+             --fileRegexPattern ".*\\.go$" \
+             --repository snappr \
+             --repositoryOwner Mgla96 \
+             --workflowName codeReview \
+             --fileRegexPattern "ollama.go$" \
+             --llmEndpoint ${{ secrets.LLM_ENDPOINT }} \
+             --llmAPI ollama \
+             --llmModel llama3.2
+
+
